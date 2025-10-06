@@ -2,6 +2,10 @@
 
 A web-based application for creating and analyzing 3D radiation scenarios. Upload floor plans, place radiation sources and receivers, and calculate heat flux distributions with interactive 3D visualization.
 
+##Disclaimer
+This tool is for professional use within OFR Consultants. Results are for design guidance only and must be verified by a qualified fire engineer. 
+James Yu accepts no liability for any loss or error arising from its use.
+
 ## 🚀 Quick Start
 
 1. **Upload Floor Plan**: Click "Upload Image" to add a reference floor plan
