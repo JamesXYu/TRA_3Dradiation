@@ -24,7 +24,7 @@ WORKDIR /app
 COPY . ./
 
 # Build the C++ application
-RUN make clean && make
+RUN make
 
 # Make the binary executable
 RUN chmod +x calcus
@@ -35,3 +35,4 @@ EXPOSE $PORT
 # Run the Python server
 
 CMD ["python3", "server.py"]
+
