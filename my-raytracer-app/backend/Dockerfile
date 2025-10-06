@@ -23,16 +23,18 @@ WORKDIR /app
 # Copy all backend files
 COPY . ./
 
-# Build the C++ application
-RUN make
+# List files to verify copy worked
+RUN echo "Files in /app:" && ls -la
 
-# Make the binary executable
-RUN chmod +x calcus
+# Build the C++ application directly
+RUN echo "Compiling calcus.cpp..." && \
+    g++ -std=c++17 -O3 calcus.cpp -o calcus -lm && \
+    echo "Compilation successful!" && \
+    chmod +x calcus && \
+    echo "Binary is ready"
 
 # Expose port (Render.com uses PORT environment variable)
 EXPOSE $PORT
 
 # Run the Python server
-
 CMD ["python3", "server.py"]
-
