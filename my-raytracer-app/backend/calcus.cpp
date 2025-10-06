@@ -379,15 +379,7 @@ ViewFactorResult calculateViewFactorsWithBlockage(
 //   "num_rays": 100000,          // optional (default 100000)
 //   "seed": 123456789            // optional (deterministic if provided)
 // }
-// 
-// Legacy format still supported:
-// {
-//   "origin": [x,y,z],
-//   "normal": [nx,ny,nz],
-//   "polygons": [ [[x,y,z], ...], ... ],
-//   "num_rays": 100000,
-//   "seed": 123456789
-// }
+
 
 namespace mini_json {
 	inline void skipSpaces(const std::string& s, size_t& i) {
@@ -872,4 +864,5 @@ int main(int argc, char* argv[]) {
 	std::cout << out;
 	return 0;
 }
+
 
