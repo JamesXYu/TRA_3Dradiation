@@ -20,10 +20,8 @@ RUN pip3 install flask flask-cors
 # Set working directory
 WORKDIR /app
 
-# Copy source files
-COPY calcus.cpp .
-COPY Makefile .
-COPY server.py .
+# Copy all backend files
+COPY . ./
 
 # Build the C++ application
 RUN make clean && make
@@ -35,4 +33,5 @@ RUN chmod +x calcus
 EXPOSE $PORT
 
 # Run the Python server
+
 CMD ["python3", "server.py"]
