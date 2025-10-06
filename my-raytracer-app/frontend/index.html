@@ -1042,6 +1042,15 @@
                 plane.mesh.visible = true; // Make sure all planes are visible by default
             });
 
+            // Detach transform controls if they're attached to a top view line
+            if (transformControlss && transformControlss.object) {
+                // Check if transform controls are attached to a top view line
+                const isTopViewLine = transformControlss.object.userData && transformControlss.object.userData.parentPlane;
+                if (isTopViewLine) {
+                    transformControlss.detach();
+                }
+            }
+
             // If in top view, create top view lines
             if (isTopView) {
                 planes.forEach(plane => {
@@ -1412,13 +1421,33 @@
 
             captureState("Before delete");
 
-            // Delete all selected planes
-            selectedPlanes.forEach(planeData => {
-                if (transformControlss.object === planeData.mesh) {
+            // Filter out planes that no longer exist in the scene
+            const validSelectedPlanes = selectedPlanes.filter(planeData => {
+                return planes.includes(planeData) && scene.children.includes(planeData.mesh);
+            });
+
+            if (validSelectedPlanes.length === 0) {
+                console.warn('No valid planes to delete');
+                selectedPlanes = [];
+                return;
+            }
+
+            // Delete all valid selected planes
+            validSelectedPlanes.forEach(planeData => {
+                // Detach transform controls if they're attached to this plane or its group
+                if (transformControlss.object === planeData.mesh || 
+                    (selectedPlaneGroup && transformControlss.object === selectedPlaneGroup)) {
                     transformControlss.detach();
                 }
 
+                // Remove the actual plane mesh from scene
                 scene.remove(planeData.mesh);
+
+                // Remove top view line if it exists
+                if (planeData.mesh.userData.topViewLine) {
+                    scene.remove(planeData.mesh.userData.topViewLine);
+                    planeData.mesh.userData.topViewLine = null;
+                }
 
                 const index = planes.indexOf(planeData);
                 if (index > -1) {
@@ -1428,6 +1457,13 @@
                 planeData.mesh.geometry.dispose();
                 planeData.mesh.material.dispose();
             });
+
+            // Clear group if it exists
+            if (selectedPlaneGroup) {
+                scene.remove(selectedPlaneGroup);
+                selectedPlaneGroup = null;
+                originalPositions.clear();
+            }
 
             gui.destroy();
             gui = new dat.GUI();
@@ -1600,6 +1636,12 @@
                 if (object.userData && object.userData.parentPlane) {
                     const planeData = object.userData.parentPlane;
                     
+                    // Ensure the plane still exists in the planes array
+                    if (!planes.includes(planeData)) {
+                        console.warn('Top view line references a plane that no longer exists');
+                        return;
+                    }
+                    
                     if (isShiftPressed) {
                         // Shift+click - toggle selection
                         const index = selectedPlanes.indexOf(planeData);
@@ -1760,7 +1802,10 @@
 
         function updateTransformControls() {
             if (selectedPlanes.length === 0) {
-                transformControlss.detach();
+                // Only detach if transform controls are currently attached to something
+                if (transformControlss.object) {
+                    transformControlss.detach();
+                }
                 gui.destroy();
                 gui = new dat.GUI();
             } else if (selectedPlaneGroup) {
@@ -1768,9 +1813,18 @@
                 transformControlss.attach(selectedPlaneGroup);
                 updateGUI(selectedPlanes[selectedPlanes.length - 1]);
             } else {
-                // Control the last selected plane
-                transformControlss.attach(selectedPlanes[selectedPlanes.length - 1].mesh);
-                updateGUI(selectedPlanes[selectedPlanes.length - 1]);
+                // Control the last selected plane - ensure the mesh exists
+                const targetMesh = selectedPlanes[selectedPlanes.length - 1].mesh;
+                if (targetMesh && scene.children.includes(targetMesh)) {
+                    transformControlss.attach(targetMesh);
+                    updateGUI(selectedPlanes[selectedPlanes.length - 1]);
+                } else {
+                    // If mesh doesn't exist, detach and clear selection
+                    transformControlss.detach();
+                    selectedPlanes = [];
+                    gui.destroy();
+                    gui = new dat.GUI();
+                }
             }
             
             // Configure transform controls based on mode and view
@@ -2151,6 +2205,14 @@
                     gridSnapConfig.rotation.enabled = !gridSnapConfig.rotation.enabled;
                     gridSnapConfig.scale.enabled = !gridSnapConfig.scale.enabled;
                     console.log(`Grid snapping ${gridSnapConfig.translation.enabled ? 'enabled' : 'disabled'}`);
+                    break;
+                case 't': // Top view
+                    setView(cameras.top);
+                    console.log('Switched to top view');
+                    break;
+                case 'y': // Perspective view
+                    setView(cameras.perspective);
+                    console.log('Switched to perspective view');
                     break;
             }
         });
