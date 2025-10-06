@@ -54,7 +54,7 @@ static: $(TARGET)
 # Clean build artifacts
 clean:
 	@echo "Cleaning build artifacts..."
-	rm -f $(OBJECTS) $(TARGET)
+	-rm -f $(OBJECTS) $(TARGET)
 	@echo "Clean complete"
 
 # Install target (for deployment)
@@ -114,4 +114,5 @@ help:
 	@echo "  help       - Show this help message"
 
 # Phony targets
+
 .PHONY: all debug release profile static clean install uninstall test perf-test memcheck info help
