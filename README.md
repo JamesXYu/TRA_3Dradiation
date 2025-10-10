@@ -120,7 +120,6 @@ When selected, objects show these properties:
 | `Delete` | Delete selected objects |
 | `Ctrl+Z` | Undo |
 | `Ctrl+Y` | Redo |
-| `Ctrl+Shift+Z` | Alternative redo |
 
 ### Copy/Paste
 | Key | Action |
