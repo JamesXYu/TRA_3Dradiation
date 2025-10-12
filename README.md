@@ -107,6 +107,7 @@ When selected, objects show these properties:
 | `R` | Switch to rotate mode |
 | `Q` | Toggle local/world coordinate systems |
 | `G` | Toggle grid snapping |
+| `A` | Add plane |
 
 ### View Controls
 | Key | Action |
