@@ -12,9 +12,9 @@
         #functionbox {
             width: 250px;
             height: auto;
+            max-height: calc(100vh - 60px);
             position: absolute;
             top: 50px;
-            bottom: 10px;
             left: 10px;
             z-index: 100;
 
@@ -541,6 +541,60 @@
             color: aliceblue;
         }
 
+        /* Accordion/Dropdown Sections */
+        .section-header {
+            font: bolder;
+            font-size: 22px;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 12px 10px;
+            font-weight: bold;
+            color: aliceblue;
+            background-color: rgba(0, 161, 155, 0.5);
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.3s ease;
+            position: relative;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-header:hover {
+            background-color: rgba(0, 161, 155, 0.5);
+        }
+
+        .section-header:active {
+            background-color: rgba(0, 161, 155, 0.6);
+        }
+
+        .section-header::after {
+            content: '\25BC'; /* Down arrow Unicode */
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .section-header.collapsed::after {
+            transform: translateY(-50%) rotate(-90deg);
+        }
+
+        .section-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease;
+            opacity: 1;
+            padding: 5px 0;
+        }
+
+        .section-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding: 0;
+        }
+
         .my-custom-gui {
             font-size: 26px;
             width: 700px;
@@ -654,6 +708,44 @@
             justify-content: center;
         }
 
+        .transform-buttons-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding: 0 25px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .transform-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            padding: 10px 8px;
+            background: #00a19b;
+            height: 45px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .transform-btn:hover {
+            background: #007e7a;
+        }
+
+        .transform-btn:active {
+            transform: scale(0.97);
+        }
+
+        .transform-btn.active {
+            background: #006662;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
         #colorLegend {
             background: rgba(255, 255, 255, 0.95);
             padding: 20px;
@@ -715,48 +807,82 @@
 <body>
 
     <div id="functionbox">
-        <p>Floor plan</p>
-        <input type="file" id="imageInput" accept="image/*" hidden>
-        <label for="imageInput" class="custom-file-upload">Upload Image</label>
-        <hr>
-        <p>Plane</p>
-        <button id="addplane"> Add Plane </button>
-        <button id="deleteplane">Delete Plane </button>
-        <button id="resetPlane">Reset Plane</button>
-        <button id="standPlane">Stand Plane</button>
-        <hr>
-        <p>Views</p>
-        <div class="view-buttons-container">
-            <button id="top">Top</button>
-            <button id="front"> Front</button>
-            <button id="side">Side</button>
+        <!-- Floor plan section -->
+        <div class="section-header collapsed" onclick="toggleSection(this)">Floor plan</div>
+        <div class="section-content collapsed">
+            <input type="file" id="imageInput" accept="image/*" hidden>
+            <label for="imageInput" class="custom-file-upload">Upload Image</label>
         </div>
-        <button id="perspective">Perspective</button>
-        <hr>
-        <p>Scaling</p>
-        <input type="text" name="Set scale" id="scalinginput" placeholder="Enter the distance">
-        <button id="scalingbutton"> Set scale </button>
-        <button id="updatescale"> Update </button>
-        <hr>
-        <p>Precision</p>
-        <input type="number" id="gridSizeInput" placeholder="Receiver grid size (1-50)" min="1" max="50">
-        <hr>
-        <p>Color Scale</p>
-        <div class="color-scale-container">
-            <input type="number" id="colorScaleMin" placeholder="Min" step="0.1" value="0">
-            <span style="color: white; font-family: 'Poppins', sans-serif;">to</span>
-            <input type="number" id="colorScaleMax" placeholder="Max" step="0.1" value="20">
+
+        <!-- Plane section -->
+        <div class="section-header collapsed" onclick="toggleSection(this)">Plane</div>
+        <div class="section-content collapsed">
+            <button id="addplane"> Add Plane </button>
+            <button id="deleteplane">Delete Plane </button>
+            <button id="resetPlane">Reset Plane</button>
+            <button id="standPlane">Stand Plane</button>
         </div>
-        <hr>
-        <p>Save</p>
-        <button id="exportBtn"> Export Scene</button>
-        <input type="file" id="importFile" accept=".json" hidden>
-        <label for="importFile" id="importbtn"> Import Scene </label>
-        <hr>
-        <p>Calculation</p>
-        <button id="detail">Show detail</button>
-        <button id="calculate">Calculate</button>
-        
+
+        <!-- Transform Controls section -->
+        <div class="section-header collapsed" onclick="toggleSection(this)">Controls</div>
+        <div class="section-content collapsed">
+            <div class="transform-buttons-container">
+                <button id="transformQ" class="transform-btn">Local</button>
+                <button id="transformW" class="transform-btn">Translate</button>
+                <button id="transformE" class="transform-btn">Scale</button>
+                <button id="transformR" class="transform-btn">Rotate</button>
+            </div>
+        </div>
+
+        <!-- Views section -->
+        <div class="section-header collapsed" onclick="toggleSection(this)">Views</div>
+        <div class="section-content collapsed">
+            <div class="view-buttons-container">
+                <button id="top">Top</button>
+                <button id="front"> Front</button>
+                <button id="side">Side</button>
+            </div>
+            <button id="perspective">Perspective</button>
+        </div>
+
+        <!-- Scaling section -->
+        <div class="section-header collapsed" onclick="toggleSection(this)">Scaling</div>
+        <div class="section-content collapsed">
+            <input type="text" name="Set scale" id="scalinginput" placeholder="Enter the distance">
+            <button id="scalingbutton"> Set scale </button>
+            <button id="updatescale"> Update </button>
+        </div>
+
+        <!-- Precision section -->
+        <div class="section-header collapsed" onclick="toggleSection(this)">Precision</div>
+        <div class="section-content collapsed">
+            <input type="number" id="gridSizeInput" placeholder="Receiver grid size (1-50)" min="1" max="50">
+        </div>
+
+        <!-- Color Scale section -->
+        <div class="section-header collapsed" onclick="toggleSection(this)">Color Scale</div>
+        <div class="section-content collapsed">
+            <div class="color-scale-container">
+                <input type="number" id="colorScaleMin" placeholder="Min" step="0.1" value="0">
+                <span style="color: white; font-family: 'Poppins', sans-serif;">to</span>
+                <input type="number" id="colorScaleMax" placeholder="Max" step="0.1" value="20">
+            </div>
+        </div>
+
+        <!-- Save section -->
+        <div class="section-header collapsed" onclick="toggleSection(this)">Save</div>
+        <div class="section-content collapsed">
+            <button id="exportBtn"> Export Scene</button>
+            <input type="file" id="importFile" accept=".json" hidden>
+            <label for="importFile" id="importbtn"> Import Scene </label>
+        </div>
+
+        <!-- Calculation section -->
+        <div class="section-header collapsed" onclick="toggleSection(this)">Calculation</div>
+        <div class="section-content collapsed">
+            <button id="detail">Show detail</button>
+            <button id="calculate">Calculate</button>
+        </div>
 
     </div>
     <svg id="contour-svg" width="512" height="512" style="display:none;"></svg>
@@ -786,6 +912,22 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/renderers/CSS2DRenderer.js"></script>
 
     <script>
+        // Toggle section collapse/expand
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            const isCollapsed = content.classList.contains('collapsed');
+            
+            if (isCollapsed) {
+                // Expand
+                content.classList.remove('collapsed');
+                header.classList.remove('collapsed');
+            } else {
+                // Collapse
+                content.classList.add('collapsed');
+                header.classList.add('collapsed');
+            }
+        }
+
         // Configuration
         const CONFIG = {
             // Backend API URL - Company network deployment
@@ -935,7 +1077,7 @@
         // Now we need to capture states at key moments. Add these calls:
 
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color("#222");
+        scene.background = new THREE.Color("#f5f5f5"); // Gentle white background
 
 
         //set up different camera parameters
@@ -1021,7 +1163,7 @@
         // Add a grid (hidden by default) with snapping-compatible size
         const gridSize = 50;
         const gridDivisions = 50;
-        const grid = new THREE.GridHelper(gridSize, gridDivisions, 0xffffff, 0xffffff);
+        const grid = new THREE.GridHelper(gridSize, gridDivisions, 0x000000, 0x000000); // Black grid
         scene.add(grid);
 
         // Grid snapping configuration
@@ -1067,11 +1209,11 @@
         function createAxisLabel(text, position, color) {
             const labelDiv = document.createElement('div');
             labelDiv.textContent = text;
-            labelDiv.style.color = '#ffffff'; // White text
+            labelDiv.style.color = '#000000'; // Black text for white background
             labelDiv.style.fontSize = '24px';
             labelDiv.style.fontWeight = 'bold';
             labelDiv.style.fontFamily = 'Arial, sans-serif';
-            labelDiv.style.textShadow = '1px 1px 2px rgba(0,0,0,0.8)'; // Black shadow for contrast
+            labelDiv.style.textShadow = '1px 1px 2px rgba(255,255,255,0.8)'; // White shadow for contrast
             labelDiv.style.pointerEvents = 'none';
             
             const label = new THREE.CSS2DObject(labelDiv);
@@ -1206,6 +1348,12 @@
 
         // Function to create top view line for a plane
         function createTopViewLine(plane) {
+            // Remove existing top view line if it exists
+            if (plane.mesh.userData.topViewLine) {
+                scene.remove(plane.mesh.userData.topViewLine);
+                plane.mesh.userData.topViewLine = null;
+            }
+            
             // Create a line geometry representing the plane's length with fixed width
             const lineGeometry = new THREE.BufferGeometry();
             
@@ -1245,11 +1393,18 @@
             // Create the line mesh
             const line = new THREE.Line(lineGeometry, lineMaterial);
             
-            // Position the line at the plane's position
-            line.position.copy(plane.mesh.position);
+            // Position the line at the plane's WORLD position (important for grouped planes)
+            const worldPosition = new THREE.Vector3();
+            plane.mesh.getWorldPosition(worldPosition);
+            line.position.copy(worldPosition);
             
             // Store reference to the parent plane
             line.userData.parentPlane = plane;
+            
+            // Store initial dimensions and rotation for change detection
+            line.userData.lastWidth = plane.width;
+            line.userData.lastAngle = plane.angle;
+            line.userData.lastIncline = plane.incline;
             
             // Store reference to the line in the plane's userData
             plane.mesh.userData.topViewLine = line;
@@ -1261,11 +1416,37 @@
         // Function to update top view line when plane changes
         function updateTopViewLine(plane) {
             if (plane.mesh.userData.topViewLine) {
-                // Remove old line
-                scene.remove(plane.mesh.userData.topViewLine);
+                const line = plane.mesh.userData.topViewLine;
                 
-                // Create new line with updated dimensions
-                createTopViewLine(plane);
+                // Get the plane's current world position
+                const worldPosition = new THREE.Vector3();
+                plane.mesh.getWorldPosition(worldPosition);
+                
+                // Update the line's position to match
+                line.position.copy(worldPosition);
+                
+                // If the plane's dimensions or rotation changed, recreate the line
+                const currentWidth = plane.width;
+                const currentAngle = plane.angle;
+                const currentIncline = plane.incline;
+                
+                // Store last known values to detect changes
+                if (!line.userData.lastWidth || 
+                    line.userData.lastWidth !== currentWidth ||
+                    line.userData.lastAngle !== currentAngle ||
+                    line.userData.lastIncline !== currentIncline) {
+                    
+                    // Dimensions or rotation changed, need to recreate geometry
+                    scene.remove(line);
+                    createTopViewLine(plane);
+                    
+                    // Store current values
+                    if (plane.mesh.userData.topViewLine) {
+                        plane.mesh.userData.topViewLine.userData.lastWidth = currentWidth;
+                        plane.mesh.userData.topViewLine.userData.lastAngle = currentAngle;
+                        plane.mesh.userData.topViewLine.userData.lastIncline = currentIncline;
+                    }
+                }
             }
         }
 
@@ -1523,9 +1704,9 @@
         // Function to create a new plane
         function createPlane(width = 1, height = 1) {
             const geometry = new THREE.PlaneGeometry(width, height);
-            // Default to Receiver type with yellow color
+            // Default to Receiver type with dark yellow color
             const defaultType = "Receiver";
-            const defaultColorHex = 0xffff00;
+            const defaultColorHex = 0xe6c200; // Darker yellow for better contrast
             const material = new THREE.MeshStandardMaterial({
                 color: defaultColorHex,
                 side: THREE.DoubleSide,
@@ -1878,7 +2059,7 @@
             // Update color by type, preserving selection highlight
             function updateColorByType() {
                 const typeLower = String(planeData.type || '').toLowerCase();
-                let hex = 0xffff00; // receiver default (yellow)
+                let hex = 0xe6c200; // receiver default (dark yellow)
                 if (typeLower === 'emitter') {
                     hex = 0xff0000; // emitter red
                 } else if (typeLower === 'inert') {
@@ -2428,6 +2609,13 @@
             // Re-center the group
             updateGroupPosition();
 
+            // Update top view lines if in top view
+            if (activeCamera === cameras.top) {
+                selectedPlanes.forEach(plane => {
+                    updateTopViewLine(plane);
+                });
+            }
+
             // Only capture state if the group was actually moved
             if (groupDragStartPosition && !groupDragStartPosition.equals(groupPosition)) {
                 captureState();
@@ -2501,13 +2689,28 @@
             if (!transformControlss) return;
 
             switch (event.key.toLowerCase()) {
+                case 'a': // Add new plane
+                    const newPlane = createPlane();
+                    updateGUI(newPlane);
+                    selectedPlane = newPlane;
+                    transformControlss.attach(newPlane.mesh);
+                    
+                    // If in top view, create the top view line immediately
+                    if (activeCamera === cameras.top) {
+                        createTopViewLine(newPlane);
+                    }
+                    
+                    console.log('New plane added (Press A to add plane)');
+                    break;
                 case 'w': // Translate
                     transformControlss.setMode('translate');
                     transformControlss.showZ = true;
+                    updateTransformButtonStates();
                     break;
                 case 'e': // Scale
                     transformControlss.setMode('scale');
                     transformControlss.showZ = true;
+                    updateTransformButtonStates();
                     break;
                 case 'r': // Rotate
                     transformControlss.setMode('rotate');
@@ -2515,12 +2718,16 @@
                     transformControlss.showX = true;
                     transformControlss.showY = true;
                     transformControlss.showZ = false;
+                    updateTransformButtonStates();
                     break;
                 case 'q': // Toggle between local and world space
+                    const qBtn = document.getElementById("transformQ");
                     if (transformControlss.space === 'local') {
                         transformControlss.setSpace('world');
+                        if (qBtn) qBtn.textContent = 'World';
                     } else {
                         transformControlss.setSpace('local');
+                        if (qBtn) qBtn.textContent = 'Local';
                     }
                     break;
                 case 'g': // Toggle grid snapping
@@ -2572,7 +2779,78 @@
             updateGUI(newPlane);
             selectedPlane = newPlane;
             transformControlss.attach(newPlane.mesh);
+            
+            // If in top view, create the top view line immediately
+            if (activeCamera === cameras.top) {
+                createTopViewLine(newPlane);
+            }
         });
+
+        // Transform control buttons
+        const qBtn = document.getElementById("transformQ");
+        qBtn.addEventListener("click", function() {
+            if (!transformControlss) return;
+            if (transformControlss.space === 'local') {
+                transformControlss.setSpace('world');
+                this.textContent = 'World';
+            } else {
+                transformControlss.setSpace('local');
+                this.textContent = 'Local';
+            }
+            updateTransformButtonStates();
+            console.log(`Transform space: ${transformControlss.space}`);
+        });
+        // Initialize Q button text based on initial space
+        qBtn.textContent = transformControlss.space === 'local' ? 'Local' : 'World';
+
+        document.getElementById("transformW").addEventListener("click", function() {
+            if (!transformControlss) return;
+            transformControlss.setMode('translate');
+            transformControlss.showZ = true;
+            updateTransformButtonStates();
+            console.log('Transform mode: Translate');
+        });
+
+        document.getElementById("transformE").addEventListener("click", function() {
+            if (!transformControlss) return;
+            transformControlss.setMode('scale');
+            transformControlss.showZ = true;
+            updateTransformButtonStates();
+            console.log('Transform mode: Scale');
+        });
+
+        document.getElementById("transformR").addEventListener("click", function() {
+            if (!transformControlss) return;
+            transformControlss.setMode('rotate');
+            transformControlss.showX = true;
+            transformControlss.showY = true;
+            transformControlss.showZ = false;
+            updateTransformButtonStates();
+            console.log('Transform mode: Rotate');
+        });
+
+        // Function to update button active states
+        function updateTransformButtonStates() {
+            if (!transformControlss) return;
+            
+            const mode = transformControlss.getMode();
+            const buttons = {
+                w: document.getElementById("transformW"),
+                e: document.getElementById("transformE"),
+                r: document.getElementById("transformR")
+            };
+            
+            // Remove active class from all
+            Object.values(buttons).forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to current mode
+            if (mode === 'translate') buttons.w.classList.add('active');
+            else if (mode === 'scale') buttons.e.classList.add('active');
+            else if (mode === 'rotate') buttons.r.classList.add('active');
+        }
+        
+        // Initialize button states (default is translate mode)
+        updateTransformButtonStates();
 
 
         // Export function
@@ -2800,6 +3078,13 @@
                     plane.mesh.scale.set(1, 1, 1);
                 }
             });
+
+            // If in top view, create top view lines for all imported planes
+            if (activeCamera === cameras.top) {
+                planes.forEach(plane => {
+                    createTopViewLine(plane);
+                });
+            }
 
             alert('Scene imported successfully!');
         }
@@ -3471,6 +3756,13 @@
                 }
             }
 
+            // If in top view, create top view lines for all pasted planes
+            if (activeCamera === cameras.top) {
+                newPlanes.forEach(plane => {
+                    createTopViewLine(plane);
+                });
+            }
+
             // Update transform controls and GUI
             updateTransformControls();
             if (selectedPlanes.length > 0) {
@@ -3998,6 +4290,13 @@
             const planesToRemove = planes.filter(p => !state.planes.some(s => s.id === p.id));
             planesToRemove.forEach(plane => {
                 console.log(`Removing plane with ID: ${plane.id}`);
+                
+                // Remove top view line if it exists
+                if (plane.mesh.userData.topViewLine) {
+                    scene.remove(plane.mesh.userData.topViewLine);
+                    plane.mesh.userData.topViewLine = null;
+                }
+                
                 if (scene.children.includes(plane.mesh)) {
                     scene.remove(plane.mesh);
                 }
@@ -4090,6 +4389,13 @@
             // Update GUI
             gui.destroy();
             gui = new dat.GUI();
+
+            // If in top view, create top view lines for all restored planes
+            if (activeCamera === cameras.top) {
+                planes.forEach(plane => {
+                    createTopViewLine(plane);
+                });
+            }
 
             console.log(`State restoration complete. Total planes: ${planes.length}, Selected: ${selectedPlanes.length}`);
             console.log(`Current plane IDs: ${planes.map(p => p.id).join(', ')}`);
