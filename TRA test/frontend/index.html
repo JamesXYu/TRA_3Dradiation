@@ -518,6 +518,135 @@
             background: #007e7a;
         }
 
+        /* Scene Manager Styles */
+        #sceneNameInput {
+            font-family: 'Poppins', sans-serif;
+            font-size: large;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            background: #3a3a3a;
+            margin-left: 25px;
+            width: calc(100% - 50px);
+            box-sizing: border-box;
+        }
+
+        #sceneNameInput:focus {
+            outline: none;
+            background: #4a4a4a;
+        }
+
+        #saveSceneBtn, #newSceneBtn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            font: 700;
+            font-size: x-large;
+            padding: 8px 16px;
+            background: #00a19b;
+            width: 200px;
+            height: 50px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 25px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        #saveSceneBtn:hover {
+            background: #007e7a;
+        }
+
+        #newSceneBtn {
+            background: #5cb85c;
+        }
+
+        #newSceneBtn:hover {
+            background: #4cae4c;
+        }
+
+        #sceneDropdown {
+            font-family: 'Poppins', sans-serif;
+            font-size: large;
+            padding: 8px;
+            background: #3a3a3a;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 25px;
+            width: calc(100% - 50px);
+            box-sizing: border-box;
+        }
+
+        #sceneDropdown:focus {
+            outline: none;
+            background: #4a4a4a;
+        }
+
+        #sceneDropdown option {
+            background: #3a3a3a;
+            color: white;
+        }
+
+        .scene-buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        #loadSceneBtn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            font: 700;
+            font-size: large;
+            padding: 8px 16px;
+            background: #00a19b;
+            width: 95px;
+            height: 50px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 1px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        #loadSceneBtn:hover {
+            background: #007e7a;
+        }
+
+        #deleteSceneBtn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            font: 700;
+            font-size: large;
+            padding: 8px 16px;
+            background: #d9534f;
+            width: 95px;
+            height: 50px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 1px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        #deleteSceneBtn:hover {
+            background: #c9302c;
+        }
+
         canvas {
             position: absolute;
             top: 0;
@@ -751,7 +880,7 @@
             justify-content: center;
             align-items: center;
             font-family: 'Poppins', sans-serif;
-            font-weight: 700;
+            font: 700;
             font-size: x-large;
             padding: 8px 16px;
             background: #00a19b;
@@ -775,12 +904,12 @@
             justify-content: center;
             align-items: center;
             font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            font-size: 16px;
+            font: 700;
+            font-size: x-large;
             padding: 8px 16px;
             background: #00a19b;
             width: 200px;
-            height: 45px;
+            height: 50px;
             color: white;
             border: none;
             border-radius: 4px;
@@ -938,6 +1067,21 @@
         <div class="section-content collapsed">
         <button id="detail">Show detail</button>
         <button id="calculate">Calculate</button>
+        </div>
+
+        <!-- Scene Manager section -->
+        <div class="section-header collapsed" onclick="toggleSection(this)">Level Manager</div>
+        <div class="section-content collapsed">
+        <input type="text" id="sceneNameInput" placeholder="Enter level name">
+        <button id="saveSceneBtn">Save Level</button>
+        <select id="sceneDropdown">
+            <option value="">Select a level...</option>
+        </select>
+        <div class="scene-buttons-container">
+            <button id="loadSceneBtn">Load</button>
+            <button id="deleteSceneBtn">Delete</button>
+        </div>
+        <button id="newSceneBtn">New Level</button>
         </div>
 
     </div>
@@ -3030,7 +3174,7 @@
             // Update UI - disable the Add Plane Mode button while active
             const addPlaneBtn = document.getElementById('addPlaneMode');
             addPlaneBtn.disabled = true;
-            addPlaneBtn.textContent = 'Plane Mode Active';
+            addPlaneBtn.textContent = 'Walls Mode Active';
             addPlaneBtn.style.background = '#dc3545';
             
             console.log("✅ Plane Mode activated. Click on the ground to add plane points.");
@@ -3185,7 +3329,7 @@
             // Update UI - re-enable the Add Plane Mode button
             const addPlaneBtn = document.getElementById('addPlaneMode');
             addPlaneBtn.disabled = false;
-            addPlaneBtn.textContent = 'Add Continuous Plane';
+            addPlaneBtn.textContent = 'Add Walls';
             addPlaneBtn.style.background = '#00a19b';
             
             console.log(`🏗️ Plane creation complete. Created ${continuousPlanes.length} continuous planes.`);
@@ -3287,11 +3431,62 @@
             reader.readAsText(file);
         }
 
-        async function loadSceneData(sceneData) {
-            // Clear existing scene
-            while (planes.length) {
-                deleteplanefn();
+        function clearScene() {
+            // Detach transform controls
+            if (transformControlss.object) {
+                transformControlss.detach();
             }
+            
+            // Clear all planes manually (don't rely on deleteplanefn which requires selection)
+            while (planes.length > 0) {
+                const planeData = planes[0];
+                
+                // Remove from scene
+                if (planeData.mesh) {
+                    scene.remove(planeData.mesh);
+                    
+                    // Remove top view line if exists
+                    if (planeData.mesh.userData.topViewLine) {
+                        scene.remove(planeData.mesh.userData.topViewLine);
+                    }
+                    
+                    // Dispose geometry and material
+                    if (planeData.mesh.geometry) {
+                        planeData.mesh.geometry.dispose();
+                    }
+                    if (planeData.mesh.material) {
+                        planeData.mesh.material.dispose();
+                    }
+                }
+                
+                // Remove from planes array
+                planes.splice(0, 1);
+            }
+            
+            // Clear selections
+            selectedPlanes = [];
+            if (selectedPlaneGroup) {
+                scene.remove(selectedPlaneGroup);
+                selectedPlaneGroup = null;
+            }
+            
+            // Reset image plane
+            imagePlane.visible = false;
+            if (imagePlane.material.map) {
+                imagePlane.material.map.dispose();
+                imagePlane.material.map = null;
+                imagePlane.material.needsUpdate = true;
+            }
+            
+            // Reset scaling
+            scalingDistance = 0;
+            scalingdist = false;
+            document.getElementById('scalinginput').value = '';
+        }
+
+        async function loadSceneData(sceneData) {
+            // Clear existing scene using the proper clearScene function
+            clearScene();
 
             // Load image plane
             if (sceneData.imagePlane.texture) {
@@ -3469,6 +3664,174 @@
                 );
             });
         }
+
+        // ==================== SCENE MANAGER ====================
+        // Scene Manager functionality - Session-based only (not persistent)
+        let sessionScenes = {}; // Temporary storage that clears on page reload
+
+        function getCurrentSceneData() {
+            return {
+                version: '1.0',
+                imagePlane: {
+                    visible: imagePlane.visible,
+                    position: imagePlane.position.toArray(),
+                    rotation: imagePlane.rotation.toArray(),
+                    scale: imagePlane.scale.toArray(),
+                    geometry: {
+                        width: imagePlane.geometry.parameters.width,
+                        height: imagePlane.geometry.parameters.height
+                    },
+                    texture: imagePlane.material.map ? imagePlane.material.map.image.currentSrc : null
+                },
+                planes: planes.map(plane => ({
+                    name: plane.name,
+                    position: plane.mesh.position.toArray(),
+                    rotation: plane.mesh.rotation.toArray(),
+                    scale: [1, 1, 1],
+                    width: plane.width,
+                    height: plane.height,
+                    color: plane.color,
+                    temperature: plane.temperature,
+                    type: plane.type,
+                    defaultWidth: plane.defaultWidth,
+                    defaultHeight: plane.defaultHeight,
+                    x: plane.x,
+                    y: plane.y,
+                    z: plane.z,
+                    angle: plane.angle,
+                    incline: plane.incline
+                })),
+                scalingFactor: scalingdist ? {
+                    measuredDistance: scalingDistance,
+                    inputValue: document.getElementById('scalinginput').value
+                } : null
+            };
+        }
+
+        function getSavedScenes() {
+            return sessionScenes;
+        }
+
+        function saveScenesToStorage(scenes) {
+            sessionScenes = scenes;
+        }
+
+        function updateSceneDropdown() {
+            const dropdown = document.getElementById('sceneDropdown');
+            const scenes = getSavedScenes();
+            
+            // Clear existing options except the first one
+            dropdown.innerHTML = '<option value="">Select a scene...</option>';
+            
+            // Add saved scenes to dropdown
+            Object.keys(scenes).sort().forEach(sceneName => {
+                const option = document.createElement('option');
+                option.value = sceneName;
+                option.textContent = sceneName;
+                dropdown.appendChild(option);
+            });
+        }
+
+        // clearScene function is defined earlier (before loadSceneData)
+
+        // Save current scene button
+        document.getElementById('saveSceneBtn').addEventListener('click', () => {
+            const sceneName = document.getElementById('sceneNameInput').value.trim();
+            
+            if (!sceneName) {
+                alert('Please enter a name for the scene');
+                return;
+            }
+            
+            const scenes = getSavedScenes();
+            const sceneData = getCurrentSceneData();
+            
+            // Check if scene name already exists
+            if (scenes[sceneName]) {
+                if (!confirm(`Scene "${sceneName}" already exists. Do you want to overwrite it?`)) {
+                    return;
+                }
+            }
+            
+            // Save the scene
+            scenes[sceneName] = {
+                data: sceneData,
+                timestamp: new Date().toISOString()
+            };
+            
+            saveScenesToStorage(scenes);
+            updateSceneDropdown();
+            
+            // Clear input and select the saved scene in dropdown
+            document.getElementById('sceneNameInput').value = '';
+            document.getElementById('sceneDropdown').value = sceneName;
+            
+            alert(`Scene "${sceneName}" saved successfully!`);
+        });
+
+        // Load scene button
+        document.getElementById('loadSceneBtn').addEventListener('click', async () => {
+            const sceneName = document.getElementById('sceneDropdown').value;
+            
+            if (!sceneName) {
+                alert('Please select a scene to load');
+                return;
+            }
+            
+            const scenes = getSavedScenes();
+            const savedScene = scenes[sceneName];
+            
+            if (!savedScene) {
+                alert('Scene not found');
+                return;
+            }
+            
+            // Load the scene
+            try {
+                await loadSceneData(savedScene.data);
+                alert(`Scene "${sceneName}" loaded successfully!`);
+            } catch (error) {
+                console.error('Error loading scene:', error);
+                alert('Error loading scene');
+            }
+        });
+
+        // Delete scene button
+        document.getElementById('deleteSceneBtn').addEventListener('click', () => {
+            const sceneName = document.getElementById('sceneDropdown').value;
+            
+            if (!sceneName) {
+                alert('Please select a scene to delete');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete scene "${sceneName}"?`)) {
+                return;
+            }
+            
+            const scenes = getSavedScenes();
+            delete scenes[sceneName];
+            saveScenesToStorage(scenes);
+            updateSceneDropdown();
+            
+            alert(`Scene "${sceneName}" deleted successfully!`);
+        });
+
+        // New blank canvas button
+        document.getElementById('newSceneBtn').addEventListener('click', () => {
+            if (planes.length > 0 || imagePlane.visible) {
+                if (!confirm('This will clear the current scene. Do you want to continue?')) {
+                    return;
+                }
+            }
+            
+            clearScene();
+            alert('New blank canvas created!');
+        });
+
+        // Initialize scene dropdown on page load
+        updateSceneDropdown();
+        // ==================== END SCENE MANAGER ====================
 
         let dataarrayforcontour = null;
         // Receiver grid size (N x N), default 10
