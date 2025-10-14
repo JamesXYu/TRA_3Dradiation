@@ -746,6 +746,59 @@
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
+        #toggleGrid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: x-large;
+            padding: 8px 16px;
+            background: #00a19b;
+            width: 200px;
+            height: 50px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 25px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        #toggleGrid:hover {
+            background: #007e7a;
+        }
+
+        #addPlaneMode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 8px 16px;
+            background: #00a19b;
+            width: 200px;
+            height: 45px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 25px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        #addPlaneMode:hover {
+            background: #007e7a;
+        }
+        
+        #addPlaneMode:disabled {
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+
         #colorLegend {
             background: rgba(255, 255, 255, 0.95);
             padding: 20px;
@@ -810,17 +863,18 @@
         <!-- Floor plan section -->
         <div class="section-header collapsed" onclick="toggleSection(this)">Floor plan</div>
         <div class="section-content collapsed">
-            <input type="file" id="imageInput" accept="image/*" hidden>
-            <label for="imageInput" class="custom-file-upload">Upload Image</label>
+        <input type="file" id="imageInput" accept="image/*" hidden>
+        <label for="imageInput" class="custom-file-upload">Upload Image</label>
         </div>
 
         <!-- Plane section -->
         <div class="section-header collapsed" onclick="toggleSection(this)">Plane</div>
         <div class="section-content collapsed">
-            <button id="addplane"> Add Plane </button>
-            <button id="deleteplane">Delete Plane </button>
-            <button id="resetPlane">Reset Plane</button>
-            <button id="standPlane">Stand Plane</button>
+        <button id="addplane"> Add Plane </button>
+        <button id="deleteplane">Delete Plane </button>
+        <button id="resetPlane">Reset Plane</button>
+        <button id="standPlane">Stand Plane</button>
+            <button id="addPlaneMode">Add Continuous Plane</button>
         </div>
 
         <!-- Transform Controls section -->
@@ -837,51 +891,53 @@
         <!-- Views section -->
         <div class="section-header collapsed" onclick="toggleSection(this)">Views</div>
         <div class="section-content collapsed">
-            <div class="view-buttons-container">
-                <button id="top">Top</button>
-                <button id="front"> Front</button>
-                <button id="side">Side</button>
-            </div>
-            <button id="perspective">Perspective</button>
+        <div class="view-buttons-container">
+            <button id="top">Top</button>
+            <button id="front"> Front</button>
+            <button id="side">Side</button>
+        </div>
+        <button id="perspective">Perspective</button>
+            <button id="toggleGrid">Hide Grid</button>
         </div>
 
         <!-- Scaling section -->
         <div class="section-header collapsed" onclick="toggleSection(this)">Scaling</div>
         <div class="section-content collapsed">
-            <input type="text" name="Set scale" id="scalinginput" placeholder="Enter the distance">
-            <button id="scalingbutton"> Set scale </button>
-            <button id="updatescale"> Update </button>
+        <input type="text" name="Set scale" id="scalinginput" placeholder="Enter the distance">
+        <button id="scalingbutton"> Set scale </button>
+        <button id="updatescale"> Update </button>
         </div>
 
         <!-- Precision section -->
         <div class="section-header collapsed" onclick="toggleSection(this)">Precision</div>
         <div class="section-content collapsed">
-            <input type="number" id="gridSizeInput" placeholder="Receiver grid size (1-50)" min="1" max="50">
+            <input type="number" id="gridSizeInput" placeholder="Receiver grid size (1-50)" min="1" max="10">
         </div>
 
         <!-- Color Scale section -->
         <div class="section-header collapsed" onclick="toggleSection(this)">Color Scale</div>
         <div class="section-content collapsed">
-            <div class="color-scale-container">
-                <input type="number" id="colorScaleMin" placeholder="Min" step="0.1" value="0">
-                <span style="color: white; font-family: 'Poppins', sans-serif;">to</span>
-                <input type="number" id="colorScaleMax" placeholder="Max" step="0.1" value="20">
-            </div>
+        <div class="color-scale-container">
+            <input type="number" id="colorScaleMin" placeholder="Min" step="0.1" value="0">
+            <span style="color: white; font-family: 'Poppins', sans-serif;">to</span>
+            <input type="number" id="colorScaleMax" placeholder="Max" step="0.1" value="20">
+        </div>
         </div>
 
         <!-- Save section -->
         <div class="section-header collapsed" onclick="toggleSection(this)">Save</div>
         <div class="section-content collapsed">
-            <button id="exportBtn"> Export Scene</button>
-            <input type="file" id="importFile" accept=".json" hidden>
-            <label for="importFile" id="importbtn"> Import Scene </label>
+        <button id="exportBtn"> Export Scene</button>
+        <input type="file" id="importFile" accept=".json" hidden>
+        <label for="importFile" id="importbtn"> Import Scene </label>
         </div>
+
 
         <!-- Calculation section -->
         <div class="section-header collapsed" onclick="toggleSection(this)">Calculation</div>
         <div class="section-content collapsed">
-            <button id="detail">Show detail</button>
-            <button id="calculate">Calculate</button>
+        <button id="detail">Show detail</button>
+        <button id="calculate">Calculate</button>
         </div>
 
     </div>
@@ -931,7 +987,7 @@
         // Configuration
         const CONFIG = {
             // Backend API URL - Company network deployment
-            BACKEND_URL: 'http://192.168.0.218:8080', // Company network static IP
+            BACKEND_URL: 'http://10.14.1.165:8080', // Company network static IP
             
             // API endpoints
             CALCULATE_ENDPOINT: '/calculate',
@@ -1124,9 +1180,32 @@
             setView(cameras.left)
         });
 
+        // Toggle grid visibility
+        let gridVisible = true;
+        document.getElementById('toggleGrid').addEventListener('click', toggleGridVisibility);
+
+        function toggleGridVisibility() {
+            gridVisible = !gridVisible;
+            grid.visible = gridVisible;
+            
+            // Update button text
+            const toggleBtn = document.getElementById('toggleGrid');
+            toggleBtn.textContent = gridVisible ? 'Hide Grid' : 'Show Grid';
+            
+            console.log(`Grid ${gridVisible ? 'shown' : 'hidden'}`);
+        }
+
         // At the top with your other variables
         let selectedPlanes = []; // Array to store multiple selected planes
         let isShiftPressed = false; // Track shift key state
+        
+        // Plane creation variables
+        let planeMode = false;
+        let planePoints = [];
+        let continuousPlanes = []; // Store plane objects created as continuous planes
+        let planeClickHandler = null;
+        let clickTimeout = null;
+        
         // Add these near your other variables
         let selectedPlaneGroup = null; // Will store the temporary group
         let originalPositions = new Map(); // Stores original positions before grouping
@@ -1161,8 +1240,8 @@
 
 
         // Add a grid (hidden by default) with snapping-compatible size
-        const gridSize = 50;
-        const gridDivisions = 50;
+        const gridSize = 100;
+        const gridDivisions = 100;
         const grid = new THREE.GridHelper(gridSize, gridDivisions, 0x000000, 0x000000); // Black grid
         scene.add(grid);
 
@@ -1221,11 +1300,11 @@
             return label;
         }
 
-        // Add axis labels (positioned further away)
-        const xLabel = createAxisLabel('+X', new THREE.Vector3(70, 0, 0), '#ff0000');
-        const xNegLabel = createAxisLabel('-X', new THREE.Vector3(-70, 0, 0), '#ff0000');
-        const zLabel = createAxisLabel('+Z', new THREE.Vector3(0, 0, 70), '#0000ff');
-        const zNegLabel = createAxisLabel('-Z', new THREE.Vector3(0, 0, -70), '#0000ff');
+        // Add axis labels (positioned at axis endpoints, slightly above the lines)
+        const xLabel = createAxisLabel('+X', new THREE.Vector3(75, 2, 0), '#ff0000');
+        const xNegLabel = createAxisLabel('-X', new THREE.Vector3(-75, 2, 0), '#ff0000');
+        const zLabel = createAxisLabel('+Z', new THREE.Vector3(0, 2, 75), '#0000ff');
+        const zNegLabel = createAxisLabel('-Z', new THREE.Vector3(0, 2, -75), '#0000ff');
 
         scene.add(xLabel);
         scene.add(xNegLabel);
@@ -1241,17 +1320,17 @@
             const material = new THREE.LineBasicMaterial({ 
                 color: color, 
                 linewidth: 5,
-                depthTest: false,  // Disable depth testing to prevent z-fighting
-                transparent: true,
-                opacity: 0.8
+                depthTest: true  // Enable depth testing so they render below planes and grid
             });
             const line = new THREE.Line(geometry, material);
             return line;
         }
 
-        // Create axis lines (positioned slightly above grid to avoid z-fighting)
-        const xAxis = createAxisLine(new THREE.Vector3(-70, 0.1, 0), new THREE.Vector3(1, 0, 0), 0xff0000, 140);
-        const zAxis = createAxisLine(new THREE.Vector3(0, 0.1, -70), new THREE.Vector3(0, 0, 1), 0x0000ff, 140);
+        // Create axis lines (positioned on the grid plane, spanning full grid)
+        // X-axis: Red line from (-50, 0, 0) to (+50, 0, 0) - spans the grid width
+        const xAxis = createAxisLine(new THREE.Vector3(-50, -0.1, 0), new THREE.Vector3(1, 0, 0), 0xff0000, 100);
+        // Z-axis: Blue line from (0, 0, -50) to (0, 0, +50) - spans the grid depth  
+        const zAxis = createAxisLine(new THREE.Vector3(0, -0.1, -50), new THREE.Vector3(0, 0, 1), 0x0000ff, 100);
 
         scene.add(xAxis);
         scene.add(zAxis);
@@ -1438,7 +1517,7 @@
                     
                     // Dimensions or rotation changed, need to recreate geometry
                     scene.remove(line);
-                    createTopViewLine(plane);
+                createTopViewLine(plane);
                     
                     // Store current values
                     if (plane.mesh.userData.topViewLine) {
@@ -1821,7 +1900,11 @@
             captureState("Before stand");
 
             selectedPlanes.forEach(planeData => {
+                console.log(`📐 Standing plane "${planeData.name}" on ground`);
+                console.log(`  Before: position=[${planeData.mesh.position.x.toFixed(3)}, ${planeData.mesh.position.y.toFixed(3)}, ${planeData.mesh.position.z.toFixed(3)}]`);
+                
                 // Calculate the 4 corners of the plane in local space
+                // Use the SAME coordinate system as computeWorldCorners() and generatePointsOnPlane()
                 const halfWidth = planeData.width / 2;
                 const halfHeight = planeData.height / 2;
                 
@@ -1832,13 +1915,17 @@
                     new THREE.Vector3(-halfWidth, halfHeight, 0)
                 ];
                 
-                // Transform corners to world space
+                console.log(`  Local corners:`, corners.map(c => `[${c.x}, ${c.y}, ${c.z}]`));
+                
+                // Transform corners to world space using the ACTUAL mesh transformations
                 const worldCorners = corners.map(corner => {
                     const worldCorner = corner.clone();
                     worldCorner.applyQuaternion(planeData.mesh.quaternion);
                     worldCorner.add(planeData.mesh.position);
                     return worldCorner;
                 });
+                
+                console.log(`  World corners before adjustment:`, worldCorners.map(c => `[${c.x.toFixed(3)}, ${c.y.toFixed(3)}, ${c.z.toFixed(3)}]`));
                 
                 // Find the minimum Y value (lowest point)
                 const minY = Math.min(...worldCorners.map(c => c.y));
@@ -1850,6 +1937,19 @@
                 planeData.mesh.position.y += yOffset;
                 planeData.y = planeData.mesh.position.y;
                 
+                // Recalculate world corners to verify
+                const finalWorldCorners = corners.map(corner => {
+                    const worldCorner = corner.clone();
+                    worldCorner.applyQuaternion(planeData.mesh.quaternion);
+                    worldCorner.add(planeData.mesh.position);
+                    return worldCorner;
+                });
+                
+                const finalMinY = Math.min(...finalWorldCorners.map(c => c.y));
+                
+                console.log(`  After adjustment: position=[${planeData.mesh.position.x.toFixed(3)}, ${planeData.mesh.position.y.toFixed(3)}, ${planeData.mesh.position.z.toFixed(3)}]`);
+                console.log(`  Final world corners:`, finalWorldCorners.map(c => `[${c.x.toFixed(3)}, ${c.y.toFixed(3)}, ${c.z.toFixed(3)}]`));
+                console.log(`  Final minY: ${finalMinY.toFixed(3)} (should be ~0)`);
                 console.log(`📐 Plane "${planeData.name}" stood on ground: minY was ${minY.toFixed(3)}, adjusted by ${yOffset.toFixed(3)}, new Y: ${planeData.y.toFixed(3)}`);
             });
 
@@ -2656,19 +2756,30 @@
             const planeData = selectedPlanes[selectedPlanes.length - 1];
             const mesh = planeData.mesh;
 
-            // Update position
-            planeData.x = planeData.mesh.position.x;
-            planeData.y = planeData.mesh.position.y;
-            planeData.z = planeData.mesh.position.z;
+            // Update position from actual mesh position
+            planeData.x = mesh.position.x;
+            planeData.y = mesh.position.y;
+            planeData.z = mesh.position.z;
 
-            // Update rotation (convert to degrees)
-            planeData.angle = Math.abs(mesh.rotation.y * (180 / Math.PI)) < 1e-10 ? 0 : mesh.rotation.y * (180 / Math.PI);
-            planeData.incline = Math.abs(mesh.rotation.x * (180 / Math.PI)) < 1e-10 ? 0 : mesh.rotation.x * (180 / Math.PI);
+            // Extract rotation from mesh quaternion (more accurate than Euler angles)
+            const euler = new THREE.Euler();
+            euler.setFromQuaternion(mesh.quaternion, 'YXZ'); // Y rotation first, then X, then Z
+            
+            // Convert to degrees and update
+            planeData.angle = Math.abs(euler.y * (180 / Math.PI)) < 1e-10 ? 0 : euler.y * (180 / Math.PI);
+            planeData.incline = Math.abs(euler.x * (180 / Math.PI)) < 1e-10 ? 0 : euler.x * (180 / Math.PI);
 
+            // Handle scaling
             if (transformControlss.getMode() === 'scale') {
                 planeData.width = planeData.defaultWidth * mesh.scale.x;
                 planeData.height = planeData.defaultHeight * mesh.scale.y;
+                
+                console.log(`📏 Plane "${planeData.name}" scaled: ${planeData.width.toFixed(3)} x ${planeData.height.toFixed(3)}`);
             }
+
+            console.log(`🔄 Plane "${planeData.name}" transform updated:`);
+            console.log(`  Position: [${planeData.x.toFixed(3)}, ${planeData.y.toFixed(3)}, ${planeData.z.toFixed(3)}]`);
+            console.log(`  Rotation: angle=${planeData.angle.toFixed(1)}°, incline=${planeData.incline.toFixed(1)}°`);
 
             // Update the GUI to reflect changes
             updateGUI(planeData);
@@ -2764,6 +2875,14 @@
                         console.log('⚠️ No plane selected. Select a plane first to use Stand function (Press S)');
                     }
                     break;
+                case 'h': // Toggle grid visibility
+                    toggleGridVisibility();
+                    break;
+                case 'escape': // Exit plane mode
+                    if (planeMode) {
+                        exitPlaneMode();
+                    }
+                    break;
             }
         });
         window.addEventListener("keydown", function (event) {
@@ -2852,6 +2971,242 @@
         // Initialize button states (default is translate mode)
         updateTransformButtonStates();
 
+        // ===== PLANE CREATION FUNCTIONS =====
+        
+        // Function to start plane creation mode
+        function startPlaneMode() {
+            console.log("🏗️ Starting Plane Creation Mode");
+            
+            // Switch to top view
+            setView(cameras.top);
+            
+            // Enable plane mode
+            planeMode = true;
+            planePoints = [];
+            continuousPlanes = [];
+            
+            // Add click handler for ground plane
+            planeClickHandler = (event) => {
+                if (!planeMode) return;
+                
+                // Clear any existing timeout
+                if (clickTimeout) {
+                    clearTimeout(clickTimeout);
+                    clickTimeout = null;
+                    return; // This was a double-click, don't process as single click
+                }
+                
+                // Set timeout to detect if this is a single click
+                clickTimeout = setTimeout(() => {
+                    console.log("🖱️ Single click confirmed - adding plane point");
+                    
+                    // Get mouse position
+                    const mouse = new THREE.Vector2();
+                    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                    
+                    // Create raycaster
+                    const raycaster = new THREE.Raycaster();
+                    raycaster.setFromCamera(mouse, cameras.top);
+                    
+                    // Intersect with ground plane (Y=0)
+                    const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+                    const intersectionPoint = new THREE.Vector3();
+                    raycaster.ray.intersectPlane(groundPlane, intersectionPoint);
+                    
+                    if (intersectionPoint) {
+                        addPlanePoint(intersectionPoint);
+                    }
+                    
+                    clickTimeout = null;
+                }, 200); // 200ms delay to detect double-click
+            };
+            
+            // Add event listener with a small delay to prevent the button click from being registered
+            setTimeout(() => {
+                document.addEventListener('click', planeClickHandler);
+            }, 100);
+            
+            // Update UI - disable the Add Plane Mode button while active
+            const addPlaneBtn = document.getElementById('addPlaneMode');
+            addPlaneBtn.disabled = true;
+            addPlaneBtn.textContent = 'Plane Mode Active';
+            addPlaneBtn.style.background = '#dc3545';
+            
+            console.log("✅ Plane Mode activated. Click on the ground to add plane points.");
+            console.log("💡 Double-click or press ESC to exit plane mode.");
+        }
+        
+        // Function to add a plane point and create plane between consecutive points
+        function addPlanePoint(point) {
+            console.log(`\n📍 Adding plane point #${planePoints.length + 1}: [X=${point.x.toFixed(2)}, Y=${point.y.toFixed(2)}, Z=${point.z.toFixed(2)}]`);
+            
+            // Add point to array
+            planePoints.push(point.clone());
+            
+            console.log(`📊 Total plane points so far: ${planePoints.length}`);
+            
+            // Create plane if we have at least 2 points
+            if (planePoints.length >= 2) {
+                console.log(`\n🔧 Creating plane between point #${planePoints.length - 1} and point #${planePoints.length}`);
+                createContinuousPlane(planePoints[planePoints.length - 2], planePoints[planePoints.length - 1]);
+            } else {
+                console.log(`⏳ Waiting for second point to create first plane...`);
+            }
+        }
+        
+        // Function to create a plane between two points using existing createPlane function
+        function createContinuousPlane(point1, point2) {
+            console.log(`\n🔨 Creating continuous plane between points`);
+            console.log(`📍 CLICKED POINTS (X-Z plane):`);
+            console.log(`   Point 1: X=${point1.x.toFixed(2)}, Z=${point1.z.toFixed(2)}`);
+            console.log(`   Point 2: X=${point2.x.toFixed(2)}, Z=${point2.z.toFixed(2)}`);
+            
+            // Calculate plane properties
+            const direction = new THREE.Vector3().subVectors(point2, point1);
+            const length = direction.length();
+            const center = new THREE.Vector3().addVectors(point1, point2).multiplyScalar(0.5);
+            
+            console.log(`📐 DIRECTION VECTOR: dX=${direction.x.toFixed(2)}, dZ=${direction.z.toFixed(2)}`);
+            console.log(`📏 LENGTH: ${length.toFixed(2)}`);
+            
+            // Standard plane height (same as regular planes)
+            const planeHeight = 1; // Default height for continuous planes
+            
+            // Create a plane using the existing createPlane function
+            const continuousPlane = createPlane(length, planeHeight);
+            
+            // Position the plane at the center point
+            continuousPlane.mesh.position.set(center.x, planeHeight / 2, center.z);
+            continuousPlane.x = center.x;
+            continuousPlane.y = planeHeight / 2;
+            continuousPlane.z = center.z;
+            
+            // Rotate to face the correct direction
+            // PlaneGeometry in Three.js:
+            // - Width is along the X-axis (horizontal when rotation.y = 0)
+            // - Height is along the Y-axis (vertical)
+            // - Normal faces the Z-axis
+            // 
+            // When rotation.y = 0, the plane's local X-axis points in the world +Z direction
+            // We need to calculate how much to rotate so the local X-axis points from point1 to point2
+            //
+            // The direction vector is (direction.x, direction.z) in world XZ plane
+            // atan2(direction.x, direction.z) gives angle from +Z to direction
+            // But we need to add 90° because the plane's width is perpendicular to its initial orientation
+            const angle = Math.atan2(direction.x, direction.z) - Math.PI / 2;
+            
+            // Reset rotation first to ensure clean rotation (important for subsequent planes)
+            continuousPlane.mesh.rotation.set(0, 0, 0);
+            continuousPlane.mesh.rotation.y = angle;
+            continuousPlane.angle = angle * (180 / Math.PI);
+            
+            console.log(`🔄 Direction: dX=${direction.x.toFixed(2)}, dZ=${direction.z.toFixed(2)}`);
+            console.log(`🔄 Applied rotation angle: ${(angle * 180 / Math.PI).toFixed(1)}°`);
+            
+            console.log(`🔄 ROTATION: ${(angle * 180 / Math.PI).toFixed(1)}° (Y-axis)`);
+            
+            // Calculate the four corners of the plane in world space for verification
+            const halfWidth = length / 2;
+            const halfHeight = planeHeight / 2;
+            
+            // Local corners (width along X, height along Y)
+            // Bottom-left, bottom-right, top-right, top-left (when looking at the plane)
+            const localCorners = [
+                new THREE.Vector3(-halfWidth, -halfHeight, 0),  // Bottom-left edge (closer to point1)
+                new THREE.Vector3(halfWidth, -halfHeight, 0),   // Bottom-right edge (closer to point2)
+                new THREE.Vector3(halfWidth, halfHeight, 0),    // Top-right edge (closer to point2)
+                new THREE.Vector3(-halfWidth, halfHeight, 0)    // Top-left edge (closer to point1)
+            ];
+            
+            // Transform to world space using the mesh's actual quaternion
+            const worldCorners = localCorners.map(corner => {
+                const worldCorner = corner.clone();
+                worldCorner.applyQuaternion(continuousPlane.mesh.quaternion);
+                worldCorner.add(continuousPlane.mesh.position);
+                return worldCorner;
+            });
+            
+            console.log(`📦 PLANE CORNERS (X-Z plane, Y=${planeHeight / 2}):`);
+            console.log(`   Corner 0 (bottom-left):  X=${worldCorners[0].x.toFixed(2)}, Z=${worldCorners[0].z.toFixed(2)}`);
+            console.log(`   Corner 1 (bottom-right): X=${worldCorners[1].x.toFixed(2)}, Z=${worldCorners[1].z.toFixed(2)}`);
+            console.log(`   Corner 2 (top-right):    X=${worldCorners[2].x.toFixed(2)}, Z=${worldCorners[2].z.toFixed(2)}`);
+            console.log(`   Corner 3 (top-left):     X=${worldCorners[3].x.toFixed(2)}, Z=${worldCorners[3].z.toFixed(2)}`);
+            console.log(`📌 PLANE CENTER: X=${center.x.toFixed(2)}, Z=${center.z.toFixed(2)}`);
+            
+            // Verify: The width edges should align with clicked points
+            console.log(`\n🔍 VERIFICATION:`);
+            console.log(`   Width edge 1 (corners 0&3 center): X=${((worldCorners[0].x + worldCorners[3].x)/2).toFixed(2)}, Z=${((worldCorners[0].z + worldCorners[3].z)/2).toFixed(2)}`);
+            console.log(`   Should match Point 1: X=${point1.x.toFixed(2)}, Z=${point1.z.toFixed(2)}`);
+            console.log(`   Width edge 2 (corners 1&2 center): X=${((worldCorners[1].x + worldCorners[2].x)/2).toFixed(2)}, Z=${((worldCorners[1].z + worldCorners[2].z)/2).toFixed(2)}`);
+            console.log(`   Should match Point 2: X=${point2.x.toFixed(2)}, Z=${point2.z.toFixed(2)}`);
+            
+            // Generate unique name similar to normal planes
+            const planeNumber = planes.length;
+            let baseName = `Plane ${planeNumber}`;
+            let counter = 0;
+            
+            // Check for duplicate names and increment until we find a unique one
+            while (planes.some(p => p.name === baseName)) {
+                counter++;
+                baseName = `Plane ${planeNumber + counter}`;
+            }
+            
+            continuousPlane.name = baseName;
+            
+            // Store reference
+            continuousPlanes.push(continuousPlane);
+            
+            // Create top view line since we're in top view
+            createTopViewLine(continuousPlane);
+            
+            console.log(`✅ Plane "${continuousPlane.name}" created successfully\n`);
+        }
+        
+        // Function to exit plane creation mode
+        function exitPlaneMode() {
+            console.log("🚪 Exiting Plane Creation Mode");
+            
+            // Disable plane mode
+            planeMode = false;
+            
+            // Clear any pending click timeout
+            if (clickTimeout) {
+                clearTimeout(clickTimeout);
+                clickTimeout = null;
+            }
+            
+            // Remove click handler
+            if (planeClickHandler) {
+                document.removeEventListener('click', planeClickHandler);
+                planeClickHandler = null;
+            }
+            
+            // Update UI - re-enable the Add Plane Mode button
+            const addPlaneBtn = document.getElementById('addPlaneMode');
+            addPlaneBtn.disabled = false;
+            addPlaneBtn.textContent = 'Add Continuous Plane';
+            addPlaneBtn.style.background = '#00a19b';
+            
+            console.log(`🏗️ Plane creation complete. Created ${continuousPlanes.length} continuous planes.`);
+        }
+        
+        
+        // Function to handle double-click to exit plane mode
+        function handleDoubleClick(event) {
+            if (planeMode) {
+                console.log("🖱️ Double-click detected - exiting plane mode");
+                event.preventDefault();
+                event.stopPropagation();
+                exitPlaneMode();
+            }
+        }
+
+        // Plane creation event listeners
+        document.getElementById('addPlaneMode').addEventListener('click', startPlaneMode);
+        
+        // Double-click to exit plane mode
+        document.addEventListener('dblclick', handleDoubleClick);
 
         // Export function
         document.getElementById('exportBtn').addEventListener('click', exportScene);
@@ -3316,6 +3671,10 @@
         }
 
         function generatePointsOnPlane(plane, rows = 11, cols = 11) {
+            console.log(`🎯 Generating ${rows}x${cols} points for plane "${plane.name}"`);
+            console.log(`  Plane dimensions: ${plane.width} x ${plane.height}`);
+            console.log(`  Plane position: [${plane.mesh.position.x.toFixed(3)}, ${plane.mesh.position.y.toFixed(3)}, ${plane.mesh.position.z.toFixed(3)}]`);
+            
             const points = [];
             const width = plane.width;
             const height = plane.height;
@@ -3328,7 +3687,7 @@
             const worldPosition = plane.mesh.position.clone();
             const worldQuaternion = plane.mesh.quaternion.clone();
 
-            // Generate grid points
+            // Generate grid points using the SAME coordinate system as computeWorldCorners()
             for (let row = 0; row < rows; row++) {
                 for (let col = 0; col < cols; col++) {
                     // Calculate local position (centered on plane)
@@ -3361,6 +3720,13 @@
                 }
             }
 
+            // Log first, middle, and last points for validation
+            console.log(`  First point (0,0): [${points[0].position.x}, ${points[0].position.y}, ${points[0].position.z}]`);
+            const middleIdx = Math.floor(points.length / 2);
+            console.log(`  Middle point: [${points[middleIdx].position.x}, ${points[middleIdx].position.y}, ${points[middleIdx].position.z}]`);
+            console.log(`  Last point (${rows-1},${cols-1}): [${points[points.length-1].position.x}, ${points[points.length-1].position.y}, ${points[points.length-1].position.z}]`);
+            console.log(`  Total points generated: ${points.length}`);
+
             return points;
         }
 
@@ -3376,32 +3742,47 @@
                 const polygons = [];
                 const inert_polygons = [];
 
-                // Helpers
+                // Helpers - Fixed to use actual mesh transformations
                 function computeWorldCorners(plane) {
-                    const width = plane.width;
-                    const height = plane.height;
+                    console.log(`🔧 Computing world corners for plane "${plane.name}"`);
+                    console.log(`  Plane dimensions: ${plane.width} x ${plane.height}`);
+                    console.log(`  Plane position: [${plane.x}, ${plane.y}, ${plane.z}]`);
+                    console.log(`  Plane rotation (angle/incline): [${plane.angle}°, ${plane.incline}°]`);
+                    
+                    // Use the SAME coordinate system as standPlaneOnGround() and generatePointsOnPlane()
+                    // THREE.js PlaneGeometry lies in the XY plane with Z as the normal
+                    const halfWidth = plane.width / 2;
+                    const halfHeight = plane.height / 2;
+                    
                     const corners = [
-                        new THREE.Vector3(-width/2, 0, -height/2),
-                        new THREE.Vector3(width/2, 0, -height/2),
-                        new THREE.Vector3(width/2, 0, height/2),
-                        new THREE.Vector3(-width/2, 0, height/2)
+                        new THREE.Vector3(-halfWidth, -halfHeight, 0),
+                        new THREE.Vector3(halfWidth, -halfHeight, 0),
+                        new THREE.Vector3(halfWidth, halfHeight, 0),
+                        new THREE.Vector3(-halfWidth, halfHeight, 0)
                     ];
-                    const makeHorizontal = new THREE.Matrix4().makeRotationX(-Math.PI / 2);
-                    const rotationY = new THREE.Matrix4().makeRotationY(plane.angle * Math.PI / 180);
-                    const rotationX = new THREE.Matrix4().makeRotationX(plane.incline * Math.PI / 180);
-                    const rotationMatrix = new THREE.Matrix4()
-                        .multiply(makeHorizontal)
-                        .multiply(rotationX)
-                        .multiply(rotationY);
-                    return corners.map(corner => {
-                        corner.applyMatrix4(rotationMatrix);
-                        corner.add(new THREE.Vector3(plane.x, plane.y, plane.z));
+                    
+                    console.log(`  Local corners before transform:`, corners.map(c => `[${c.x}, ${c.y}, ${c.z}]`));
+                    
+                    // Transform corners to world space using the ACTUAL mesh transformations
+                    const worldCorners = corners.map(corner => {
+                        const worldCorner = corner.clone();
+                        
+                        // Apply the mesh's actual quaternion rotation
+                        worldCorner.applyQuaternion(plane.mesh.quaternion);
+                        
+                        // Add the mesh's actual world position
+                        worldCorner.add(plane.mesh.position);
+                        
                         return [
-                            Math.round(corner.x * 100) / 100,
-                            Math.round(corner.y * 100) / 100,
-                            Math.round(corner.z * 100) / 100
+                            Math.round(worldCorner.x * 100) / 100,
+                            Math.round(worldCorner.y * 100) / 100,
+                            Math.round(worldCorner.z * 100) / 100
                         ];
                     });
+                    
+                    console.log(`  World corners after transform:`, worldCorners.map(c => `[${c[0]}, ${c[1]}, ${c[2]}]`));
+                    
+                    return worldCorners;
                 }
 
                 function computePlaneNormal(plane) {
@@ -3609,9 +3990,9 @@
         const gridSizeEl = document.getElementById('gridSizeInput');
         if (gridSizeEl) {
             gridSizeEl.addEventListener('change', function () {
-                const val = parseInt(this.value, 10);
+                const val = parseInt(this.value, 3);
                 if (isNaN(val)) return;
-                receiverGridSize = Math.max(1, Math.min(50, val));
+                receiverGridSize = Math.max(1, Math.min(10, val));
             });
         }
         
