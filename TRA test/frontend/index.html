@@ -31,35 +31,6 @@
             height: 100vh;
         }
 
-        #deleteplane {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Poppins', sans-serif;
-            font: 700;
-            font-size: x-large;
-            padding: 8px 16px;
-            background: #00a19b;
-            width: 200px;
-            height: 50px;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-left: 25px;
-            margin-top: 5px;
-            margin-bottom: 5px;
-        }
-
-        #deleteplane:hover {
-            background: #007e7a;
-        }
-
-        #deleteplane:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-        }
-
         .custom-file-upload {
             display: flex;
             justify-content: center;
@@ -88,36 +59,12 @@
             transform: scale(0.97);
         }
 
-        #addplane {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Poppins', sans-serif;
-            font: 700;
-            font-size: x-large;
-            padding: 8px 16px;
-            background: #00a19b;
-            width: 200px;
-            height: 50px;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-left: 25px;
-            margin-top: 5px;
-            margin-bottom: 5px;
-        }
-
-        #addplane:hover {
-            background: #007e7a;
-        }
-
         #top {
             display: flex;
             justify-content: center;
             align-items: center;
             font-family: 'Poppins', sans-serif;
-            font: 400;
+            font: 700;
             font-size: large;
             padding: 5px 16px;
             background: #00a19b;
@@ -165,7 +112,7 @@
             justify-content: center;
             align-items: center;
             font-family: 'Poppins', sans-serif;
-            font: 400;
+            font: 700;
             font-size: large;
             padding: 8px 16px;
             background: #00a19b;
@@ -226,6 +173,56 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .scale-input-modal {
+            position: fixed;
+            z-index: 1001;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .scale-input-modal h3 {
+            margin: 0 0 20px 0;
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+        }
+
+        .scale-input-modal input {
+            padding: 10px 15px;
+            font-size: 18px;
+            font-family: 'Poppins', sans-serif;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            width: 200px;
+            margin: 10px;
+            outline: none;
+        }
+
+        .scale-input-modal input:focus {
+            border-color: #00a19b;
+        }
+
+        .scale-input-modal button {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-family: 'Poppins', sans-serif;
+            background: #00a19b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        .scale-input-modal button:hover {
+            background: #007e7a;
         }
         
         .modal-container {
@@ -289,6 +286,11 @@
             transition: all 0.3s ease;
             margin-top: 5px;
             margin-bottom: 5px;
+        }
+        
+        #gridSizeInput {
+            background-color: white;
+            cursor: pointer;
         }
         
         #colorScaleMin, #colorScaleMax {
@@ -390,54 +392,6 @@
         }
 
         #exportBtn:hover {
-            background: #007e7a;
-        }
-
-        #resetPlane {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Poppins', sans-serif;
-            font: 700;
-            font-size: x-large;
-            padding: 8px 16px;
-            background: #00a19b;
-            width: 200px;
-            height: 50px;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-left: 25px;
-            margin-top: 5px;
-            margin-bottom: 5px;
-        }
-
-        #resetPlane:hover {
-            background: #007e7a;
-        }
-
-        #standPlane {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Poppins', sans-serif;
-            font: 700;
-            font-size: x-large;
-            padding: 8px 16px;
-            background: #00a19b;
-            width: 200px;
-            height: 50px;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-left: 25px;
-            margin-top: 5px;
-            margin-bottom: 5px;
-        }
-
-        #standPlane:hover {
             background: #007e7a;
         }
 
@@ -562,30 +516,34 @@
         }
 
         #newSceneBtn {
-            background: #5cb85c;
+            background: #00a19b;
         }
 
         #newSceneBtn:hover {
-            background: #4cae4c;
+            background: #007e7e;
         }
 
         #sceneDropdown {
+            padding: 6px 8px;
+            font-size: 20px;
             font-family: 'Poppins', sans-serif;
-            font-size: large;
-            padding: 8px;
-            background: white;
-            color: black;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
             margin-left: 25px;
-            width: calc(100% - 50px);
-            box-sizing: border-box;
+            width: 200px;
+            max-width: 185px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            background-color: white;
+            cursor: pointer;
         }
 
         #sceneDropdown:focus {
-            outline: none;
-            background: #f0f0f0;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
         }
 
         #sceneDropdown option {
@@ -631,7 +589,7 @@
             font: 700;
             font-size: large;
             padding: 8px 16px;
-            background: #d9534f;
+            background: #00a19b;
             width: 95px;
             height: 50px;
             color: white;
@@ -846,6 +804,15 @@
             margin-bottom: 5px;
         }
 
+        .plane-buttons-container {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px;
+            padding: 0 25px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
         .transform-btn {
             display: flex;
             justify-content: center;
@@ -870,7 +837,38 @@
             transform: scale(0.97);
         }
 
+        .plane-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+            padding: 10px 8px;
+            background: #00a19b;
+            height: 45px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .plane-btn:hover {
+            background: #007e7a;
+        }
+
+        .plane-btn:active {
+            transform: scale(0.97);
+        }
+
         .transform-btn.active {
+            background: #006662;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .plane-btn.active {
             background: #006662;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
@@ -999,11 +997,13 @@
         <!-- Plane section -->
         <div class="section-header collapsed" onclick="toggleSection(this)">Plane</div>
         <div class="section-content collapsed">
-        <button id="addplane"> Add Plane </button>
-        <button id="deleteplane">Delete Plane </button>
-        <button id="resetPlane">Reset Plane</button>
-        <button id="standPlane">Stand Plane</button>
-            <button id="addPlaneMode">Add Walls</button>
+            <div class="plane-buttons-container">
+                <button id="addplane" class="plane-btn">Add</button>
+                <button id="deleteplane" class="plane-btn">Delete</button>
+                <button id="resetPlane" class="plane-btn">Reset</button>
+                <button id="standPlane" class="plane-btn">Stand</button>
+            </div>
+            <button id="addPlaneMode" class="plane-btn" style="margin: 5px 25px;">Add Walls</button>
         </div>
 
         <!-- Transform Controls section -->
@@ -1032,15 +1032,18 @@
         <!-- Scaling section -->
         <div class="section-header collapsed" onclick="toggleSection(this)">Scaling</div>
         <div class="section-content collapsed">
-        <input type="text" name="Set scale" id="scalinginput" placeholder="Enter the distance">
-        <button id="scalingbutton"> Set scale </button>
-        <button id="updatescale"> Update </button>
+        <button id="scalingbutton"> Set Scale </button>
         </div>
 
         <!-- Precision section -->
         <div class="section-header collapsed" onclick="toggleSection(this)">Precision</div>
         <div class="section-content collapsed">
-            <input type="number" id="gridSizeInput" placeholder="Receiver grid size (1-50)" min="1" max="10">
+            <select id="gridSizeInput" style="margin-left: 25px; margin-top: 5px; margin-bottom: 5px;">
+                <option value="2" selected>Low</option>
+                <option value="3">Mid</option>
+                <option value="5">High</option>
+                <option value="10">Detailed</option>
+            </select>
         </div>
 
         <!-- Color Scale section -->
@@ -1072,7 +1075,6 @@
         <!-- Scene Manager section -->
         <div class="section-header collapsed" onclick="toggleSection(this)">Level Manager</div>
         <div class="section-content collapsed">
-        <input type="text" id="sceneNameInput" placeholder="Enter level name">
         <button id="saveSceneBtn">Save Level</button>
         <select id="sceneDropdown">
             <option value="">Select a level...</option>
@@ -1100,6 +1102,22 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Scale Input Modal -->
+    <div id="scaleInputModal" class="scale-input-modal" style="display: none;">
+        <h3>Enter Distance</h3>
+        <input type="number" id="scaleDistanceInput" placeholder="Enter distance">
+        <br>
+        <button id="confirmScale">Confirm</button>
+    </div>
+
+    <!-- Level Name Input Modal -->
+    <div id="levelNameModal" class="scale-input-modal" style="display: none;">
+        <h3>Enter Level Name</h3>
+        <input type="text" id="levelNameInput" placeholder="Enter level name">
+        <br>
+        <button id="confirmLevelName">Save Level</button>
     </div>
     <svg id="contour-svg" width="512" height="512" style="display:none;"></svg>
 
@@ -1336,7 +1354,6 @@
             const toggleBtn = document.getElementById('toggleGrid');
             toggleBtn.textContent = gridVisible ? 'Hide Grid' : 'Show Grid';
             
-            console.log(`Grid ${gridVisible ? 'shown' : 'hidden'}`);
         }
 
         // At the top with your other variables
@@ -1685,17 +1702,13 @@
             // Remove existing arrow if any
             removeNormalArrow();
             
-            console.log(`📍 visualizeNormal called for plane: "${plane.name}", type: "${plane.type}", showNormalArrow: ${showNormalArrow}`);
-            
             // Check if visualization is enabled
             if (!showNormalArrow) {
-                console.log(`⚠️ Normal arrow visualization is disabled. Click "Show Normal ✓" button to enable.`);
                 return;
             }
             
             // Only show for receiver planes
             if (plane.type !== "Receiver") {
-                console.log(`⚠️ Normal arrows only show for Receiver planes. Current type: "${plane.type}"`);
                 return;
             }
             
@@ -1715,36 +1728,28 @@
             // Get plane center position from mesh
             const origin = plane.mesh.position.clone();
             
-            // Calculate arrow length based on plane size (about 60% of the smaller dimension)
-            const arrowLength = Math.min(plane.width, plane.height) * 0.6;
+            // Calculate arrow length based on plane size (about 120% of the smaller dimension for longer visibility)
+            const arrowLength = Math.min(plane.width, plane.height) * 1.5
+            ;
             
-            // Create arrow color based on direction
-            // Positive = Green, Negative = Red
-            const arrowColor = plane.positive ? 0x00ff00 : 0xff0000;
+            // Create arrow color - Black for both directions
+            const arrowColor = 0x000000; // Black for both positive and negative
             
-            // Create the arrow helper
+            // Create the arrow helper with larger, more visible proportions
             normalArrow = new THREE.ArrowHelper(
                 normal,           // direction
                 origin,           // origin
                 arrowLength,      // length
                 arrowColor,       // color
-                arrowLength * 0.3, // headLength (30% of arrow length)
-                arrowLength * 0.2  // headWidth (20% of arrow length)
+                arrowLength * 0.4, // headLength (40% of arrow length - larger head)
+                arrowLength * 0.3  // headWidth (30% of arrow length - wider head)
             );
             
-            // Make the arrow more visible
-            normalArrow.line.material.linewidth = 3;
+            // Make the arrow much more visible with thicker line
+            normalArrow.line.material.linewidth = 6;
             
             // Add to scene
             scene.add(normalArrow);
-            
-            console.log(`✨ Normal arrow created and added to scene!`);
-            console.log(`   Plane: "${plane.name}"`);
-            console.log(`   Position: [${origin.x.toFixed(2)}, ${origin.y.toFixed(2)}, ${origin.z.toFixed(2)}]`);
-            console.log(`   Direction: [${normal.x.toFixed(3)}, ${normal.y.toFixed(3)}, ${normal.z.toFixed(3)}]`);
-            console.log(`   Color: ${plane.positive ? 'GREEN (positive)' : 'RED (negative)'}`);
-            console.log(`   Arrow length: ${arrowLength.toFixed(2)}`);
-            console.log(`   Scene children count: ${scene.children.length}`);
         }
         
         // Function to remove the normal arrow
@@ -1825,6 +1830,7 @@
         //new bit for scaling
         let isMeasuring = false;
         let measurePoints = [];
+        let tempSpheres = []; // Array to store temporary spheres
 
         function handleMeasurementClick(event) {
             if (!isMeasuring) return;
@@ -1843,19 +1849,34 @@
             if (intersects.length > 0) {
                 const point = intersects[0].point;
                 measurePoints.push(point);
-                console.log(`Point ${measurePoints.length} recorded at:`, point);
-
+                
+                // Create temporary sphere at clicked point
+                const sphereGeometry = new THREE.SphereGeometry(0.05, 8, 6);
+                const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+                const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+                sphere.position.copy(point);
+                scene.add(sphere);
+                tempSpheres.push(sphere);
+                
                 if (measurePoints.length === 2) {
                     distance = measurePoints[0].distanceTo(measurePoints[1]);
-                    console.log(`Distance between points: ${distance.toFixed(2)} units`);
-
-                    cleanupMeasurement();
+                    
+                    // Show input modal
+                    showScaleInputModal();
                 }
             }
             return distance;
         }
 
         function cleanupMeasurement() {
+            // Remove temporary spheres
+            tempSpheres.forEach(sphere => {
+                scene.remove(sphere);
+                sphere.geometry.dispose();
+                sphere.material.dispose();
+            });
+            tempSpheres = [];
+            
             measurePoints = [];
             isMeasuring = false;
             renderer.domElement.removeEventListener('click', handleMeasurementClick);
@@ -1865,28 +1886,64 @@
             scalingdist = handleMeasurementClick(event);
         }
 
+        function showScaleInputModal() {
+            const modal = document.getElementById('scaleInputModal');
+            const input = document.getElementById('scaleDistanceInput');
+            modal.style.display = 'block';
+            input.focus();
+        }
+
+        function hideScaleInputModal() {
+            const modal = document.getElementById('scaleInputModal');
+            modal.style.display = 'none';
+        }
+
+        function confirmScaleInput() {
+            const input = document.getElementById('scaleDistanceInput');
+            const inputValue = parseFloat(input.value);
+            
+            if (!inputValue || inputValue <= 0) {
+                alert("Please enter a valid distance");
+                return;
+            }
+            
+            // Update the scaling
+            updatemeasureplane(inputValue);
+            
+            // Clean up
+            cleanupMeasurement();
+            hideScaleInputModal();
+            input.value = '';
+        }
+
         let scalingdist = null;
         document.getElementById("scalingbutton").addEventListener("click", function () {
             setView(cameras.top);
             isMeasuring = true;
             scalingcheck = true;
             measurePoints = [];
-            console.log("Ready to measure - click two points in the scene");
+            
+            // Clear any existing temporary spheres
+            tempSpheres.forEach(sphere => {
+                scene.remove(sphere);
+                sphere.geometry.dispose();
+                sphere.material.dispose();
+            });
+            tempSpheres = [];
 
             // Add temporary click listener
             renderer.domElement.removeEventListener('click', handleScalingClick);
             renderer.domElement.addEventListener('click', handleScalingClick);
         });
 
-        document.getElementById("updatescale").addEventListener("click", function () {
-            const inputvalue = document.getElementById("scalinginput").value;
-            if (!inputvalue) {
-                alert("please key in the scale first")
+        // Modal event listeners
+        document.getElementById("confirmScale").addEventListener("click", confirmScaleInput);
+        
+        document.getElementById("scaleDistanceInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                confirmScaleInput();
             }
-            else {
-                updatemeasureplane(inputvalue);
-            }
-        })
+        });
 
         function updatemeasureplane(input) {
             if (!scalingdist || !aspect) {
@@ -1917,11 +1974,74 @@
             imagePlane.position.copy(currentPosition);
             imagePlane.rotation.copy(currentRotation);
 
-            console.log("Plane updated with new dimensions:", newtargetWidth, newtargetHeight);
         }
         let nextId = 1;
         function generateId() {
             return nextId++;
+        }
+
+        // Multi-select functions for height and type changes
+        function changeMultiplePlanesHeight(newHeight) {
+            if (selectedPlanes.length < 2) return;
+            
+            captureState("Change multiple planes height");
+            
+            selectedPlanes.forEach(planeData => {
+                // Update height
+                planeData.height = newHeight;
+                planeData.defaultHeight = newHeight;
+                
+                // Update geometry
+                planeData.mesh.geometry.dispose();
+                planeData.mesh.geometry = new THREE.PlaneGeometry(planeData.width, planeData.height);
+                planeData.mesh.scale.set(1, 1, 1);
+                
+                // Update top view line if in top view
+                if (activeCamera === cameras.top) {
+                    updateTopViewLine(planeData);
+                }
+            });
+            
+            console.log(`Changed height of ${selectedPlanes.length} planes to ${newHeight}`);
+        }
+
+        function changeMultiplePlanesType(newType) {
+            if (selectedPlanes.length < 2) return;
+            
+            captureState("Change multiple planes type");
+            
+            selectedPlanes.forEach(planeData => {
+                // Update type
+                planeData.type = newType;
+                
+                // Update color based on type
+                const typeLower = String(newType || '').toLowerCase();
+                let hex = 0xe6c200; // receiver default (dark yellow)
+                if (typeLower === 'emitter') {
+                    hex = 0xff0000; // emitter red
+                } else if (typeLower === 'inert') {
+                    hex = 0x0000ff; // inert blue
+                }
+                planeData.color = hex;
+                
+                // Keep selection highlight
+                planeData.mesh.material.color.setHex(0x808080);
+                
+                // Update top view line color if in top view
+                updateTopViewLineColor(planeData, 0x808080);
+                
+                // Reset temperature for non-emitters
+                if (typeLower !== 'emitter') {
+                    planeData.temperature = 0;
+                }
+                
+                // Update normal arrow visualization for receiver planes
+                if (newType === "Receiver") {
+                    visualizeNormal(planeData);
+                }
+            });
+            
+            console.log(`Changed type of ${selectedPlanes.length} planes to ${newType}`);
         }
 
         // Function to create a new plane
@@ -2044,8 +2164,6 @@
             captureState("Before stand");
 
             selectedPlanes.forEach(planeData => {
-                console.log(`📐 Standing plane "${planeData.name}" on ground`);
-                console.log(`  Before: position=[${planeData.mesh.position.x.toFixed(3)}, ${planeData.mesh.position.y.toFixed(3)}, ${planeData.mesh.position.z.toFixed(3)}]`);
                 
                 // Calculate the 4 corners of the plane in local space
                 // Use the SAME coordinate system as computeWorldCorners() and generatePointsOnPlane()
@@ -2059,7 +2177,6 @@
                     new THREE.Vector3(-halfWidth, halfHeight, 0)
                 ];
                 
-                console.log(`  Local corners:`, corners.map(c => `[${c.x}, ${c.y}, ${c.z}]`));
                 
                 // Transform corners to world space using the ACTUAL mesh transformations
                 const worldCorners = corners.map(corner => {
@@ -2069,7 +2186,6 @@
                     return worldCorner;
                 });
                 
-                console.log(`  World corners before adjustment:`, worldCorners.map(c => `[${c.x.toFixed(3)}, ${c.y.toFixed(3)}, ${c.z.toFixed(3)}]`));
                 
                 // Find the minimum Y value (lowest point)
                 const minY = Math.min(...worldCorners.map(c => c.y));
@@ -2091,10 +2207,6 @@
                 
                 const finalMinY = Math.min(...finalWorldCorners.map(c => c.y));
                 
-                console.log(`  After adjustment: position=[${planeData.mesh.position.x.toFixed(3)}, ${planeData.mesh.position.y.toFixed(3)}, ${planeData.mesh.position.z.toFixed(3)}]`);
-                console.log(`  Final world corners:`, finalWorldCorners.map(c => `[${c.x.toFixed(3)}, ${c.y.toFixed(3)}, ${c.z.toFixed(3)}]`));
-                console.log(`  Final minY: ${finalMinY.toFixed(3)} (should be ~0)`);
-                console.log(`📐 Plane "${planeData.name}" stood on ground: minY was ${minY.toFixed(3)}, adjusted by ${yOffset.toFixed(3)}, new Y: ${planeData.y.toFixed(3)}`);
             });
 
             // Update the GUI
@@ -2171,11 +2283,38 @@
 
         document.getElementById("deleteplane").addEventListener("click", deleteplanefn);
 
-        // Function to update GUI for selected plane
+        // Function to update GUI for selected plane(s)
         function updateGUI(planeData) {
             gui.destroy();
             gui = new dat.GUI();
 
+            // Check if multiple planes are selected
+            const isMultiSelect = selectedPlanes.length > 1;
+            
+            if (isMultiSelect) {
+                // Multi-select GUI
+                gui.add({ info: `Multiple Planes (${selectedPlanes.length})` }, 'info').name('Selection').listen();
+                
+                // Multi-select height control
+                const multiHeightController = gui.add({ height: 1 }, 'height').name('Height (All)').step(0.1);
+                multiHeightController.onChange(function (newHeight) {
+                    changeMultiplePlanesHeight(newHeight);
+                });
+                
+                // Multi-select type control
+                const multiTypeController = gui.add({ type: 'Receiver' }, 'type', ['Receiver', 'Emitter', 'Inert']).name('Type (All)');
+                multiTypeController.onChange(function (newType) {
+                    changeMultiplePlanesType(newType);
+                });
+                
+                // Show info about selected planes
+                const planeNames = selectedPlanes.map(p => p.name).join(', ');
+                gui.add({ names: planeNames }, 'names').name('Selected Planes').listen();
+                
+                return;
+            }
+
+            // Single plane GUI (existing functionality)
             const nameController = gui.add(planeData, 'name').name('Name');
             nameController.onChange(function (newName) {
                 // Trim whitespace
@@ -2196,7 +2335,6 @@
                     return;
                 }
                 
-                console.log(`Plane renamed: "${planeData.name}" → "${newName}"`);
                 planeData.name = newName;
                 captureState();
             });
@@ -2206,7 +2344,7 @@
                 width: gui.add(planeData, 'width').name('Width').step(0.1),
                 height: gui.add(planeData, 'height').name('Height').step(0.1),
                 x: gui.add(planeData, 'x').name('X-position').step(0.1),
-                y: gui.add(planeData, 'y').name('Y-position').step(0.01),
+                y: gui.add(planeData, 'y').name('Y-position').step(0.1),
                 z: gui.add(planeData, 'z').name('Z-position').step(0.1),
                 angle: gui.add(planeData, 'angle', -180, 180).name('Rotation').step(1),
                 incline: gui.add(planeData, 'incline', -180, 180).name("Inclination").step(1),
@@ -2311,7 +2449,7 @@
                 }
                 planeData.color = hex;
                 // If currently selected, keep highlight (yellow), otherwise set mapped color
-                planeData.mesh.material.color.setHex(selectedPlanes.includes(planeData) ? 0xe3e3e3 : hex);
+                planeData.mesh.material.color.setHex(selectedPlanes.includes(planeData) ? 0x808080 : hex);
                 
                 // Update top view line color if in top view
                 updateTopViewLineColor(planeData, hex);
@@ -2334,7 +2472,6 @@
             
             // React to Normal Direction changes
             controllers.positive.onChange(function () {
-                console.log(`Normal direction changed for "${planeData.name}": ${planeData.positive ? 'Positive (+)' : 'Negative (-)'}`);
                 if (planeData.type === "Receiver" && planeData.contourData) {
                     console.warn(`⚠️ Normal direction changed after calculation. You may need to recalculate for accurate results.`);
                 }
@@ -2394,8 +2531,8 @@
                         if (index === -1) {
                             // Add to selection
                             selectedPlanes.push(planeData);
-                            planeData.mesh.material.color.setHex(0xe3e3e3);
-                            updateTopViewLineColor(planeData, 0xe3e3e3);
+                            planeData.mesh.material.color.setHex(0x808080);
+                            updateTopViewLineColor(planeData, 0x808080);
 
                             // If we have multiple planes selected, create/update group
                             if (selectedPlanes.length > 1) {
@@ -2445,8 +2582,8 @@
                 });
                             planes.forEach(p => p.mesh.visible = true);
                             selectedPlanes = [planeData];
-                            planeData.mesh.material.color.setHex(0xe3e3e3);
-                            updateTopViewLineColor(planeData, 0xe3e3e3);
+                            planeData.mesh.material.color.setHex(0x808080);
+                            updateTopViewLineColor(planeData, 0x808080);
                         }
                     }
 
@@ -2470,8 +2607,8 @@
                         if (index === -1) {
                             // Add to selection
                             selectedPlanes.push(planeData);
-                            planeData.mesh.material.color.setHex(0xe3e3e3);
-                            updateTopViewLineColor(planeData, 0xe3e3e3);
+                            planeData.mesh.material.color.setHex(0x808080);
+                            updateTopViewLineColor(planeData, 0x808080);
 
                             // If we have multiple planes selected, create/update group
                             if (selectedPlanes.length > 1) {
@@ -2521,8 +2658,8 @@
                 });
                             planes.forEach(p => p.mesh.visible = true);
                             selectedPlanes = [planeData];
-                            planeData.mesh.material.color.setHex(0xe3e3e3);
-                            updateTopViewLineColor(planeData, 0xe3e3e3);
+                            planeData.mesh.material.color.setHex(0x808080);
+                            updateTopViewLineColor(planeData, 0x808080);
                         }
                     }
 
@@ -2918,12 +3055,8 @@
                 planeData.width = planeData.defaultWidth * mesh.scale.x;
                 planeData.height = planeData.defaultHeight * mesh.scale.y;
                 
-                console.log(`📏 Plane "${planeData.name}" scaled: ${planeData.width.toFixed(3)} x ${planeData.height.toFixed(3)}`);
             }
 
-            console.log(`🔄 Plane "${planeData.name}" transform updated:`);
-            console.log(`  Position: [${planeData.x.toFixed(3)}, ${planeData.y.toFixed(3)}, ${planeData.z.toFixed(3)}]`);
-            console.log(`  Rotation: angle=${planeData.angle.toFixed(1)}°, incline=${planeData.incline.toFixed(1)}°`);
 
             // Update the GUI to reflect changes
             updateGUI(planeData);
@@ -2955,7 +3088,6 @@
                         createTopViewLine(newPlane);
                     }
                     
-                    console.log('New plane added (Press A to add plane)');
                     break;
                 case 'w': // Translate
                     transformControlss.setMode('translate');
@@ -2989,19 +3121,15 @@
                     gridSnapConfig.translation.enabled = !gridSnapConfig.translation.enabled;
                     gridSnapConfig.rotation.enabled = !gridSnapConfig.rotation.enabled;
                     gridSnapConfig.scale.enabled = !gridSnapConfig.scale.enabled;
-                    console.log(`Grid snapping ${gridSnapConfig.translation.enabled ? 'enabled' : 'disabled'}`);
                     break;
                 case 't': // Top view
                     setView(cameras.top);
-                    console.log('Switched to top view');
                     break;
                 case 'y': // Perspective view
                     setView(cameras.perspective);
-                    console.log('Switched to perspective view');
                     break;
                 case 'n': // Toggle normal arrow visualization
                     showNormalArrow = !showNormalArrow;
-                    console.log(`Normal arrow visualization ${showNormalArrow ? 'ENABLED' : 'DISABLED'} (Press N to toggle)`);
                     
                     if (showNormalArrow) {
                         // Re-visualize if a receiver plane is selected
@@ -3016,7 +3144,6 @@
                     if (selectedPlanes.length > 0) {
                         standPlaneOnGround();
                     } else {
-                        console.log('⚠️ No plane selected. Select a plane first to use Stand function (Press S)');
                     }
                     break;
                 case 'h': // Toggle grid visibility
@@ -3061,7 +3188,6 @@
                 this.textContent = 'Local';
             }
             updateTransformButtonStates();
-            console.log(`Transform space: ${transformControlss.space}`);
         });
         // Initialize Q button text based on initial space
         qBtn.textContent = transformControlss.space === 'local' ? 'Local' : 'World';
@@ -3071,7 +3197,6 @@
             transformControlss.setMode('translate');
             transformControlss.showZ = true;
             updateTransformButtonStates();
-            console.log('Transform mode: Translate');
         });
 
         document.getElementById("transformE").addEventListener("click", function() {
@@ -3079,7 +3204,6 @@
             transformControlss.setMode('scale');
             transformControlss.showZ = true;
             updateTransformButtonStates();
-            console.log('Transform mode: Scale');
         });
 
         document.getElementById("transformR").addEventListener("click", function() {
@@ -3089,7 +3213,6 @@
             transformControlss.showY = true;
             transformControlss.showZ = false;
             updateTransformButtonStates();
-            console.log('Transform mode: Rotate');
         });
 
         // Function to update button active states
@@ -3119,7 +3242,6 @@
         
         // Function to start plane creation mode
         function startPlaneMode() {
-            console.log("🏗️ Starting Plane Creation Mode");
             
             // Switch to top view
             setView(cameras.top);
@@ -3142,7 +3264,6 @@
                 
                 // Set timeout to detect if this is a single click
                 clickTimeout = setTimeout(() => {
-                    console.log("🖱️ Single click confirmed - adding plane point");
                     
                     // Get mouse position
                     const mouse = new THREE.Vector2();
@@ -3177,42 +3298,29 @@
             addPlaneBtn.textContent = 'Walls Mode Active';
             addPlaneBtn.style.background = '#dc3545';
             
-            console.log("✅ Plane Mode activated. Click on the ground to add plane points.");
-            console.log("💡 Double-click or press ESC to exit plane mode.");
         }
         
         // Function to add a plane point and create plane between consecutive points
         function addPlanePoint(point) {
-            console.log(`\n📍 Adding plane point #${planePoints.length + 1}: [X=${point.x.toFixed(2)}, Y=${point.y.toFixed(2)}, Z=${point.z.toFixed(2)}]`);
             
             // Add point to array
             planePoints.push(point.clone());
             
-            console.log(`📊 Total plane points so far: ${planePoints.length}`);
             
             // Create plane if we have at least 2 points
             if (planePoints.length >= 2) {
-                console.log(`\n🔧 Creating plane between point #${planePoints.length - 1} and point #${planePoints.length}`);
                 createContinuousPlane(planePoints[planePoints.length - 2], planePoints[planePoints.length - 1]);
-            } else {
-                console.log(`⏳ Waiting for second point to create first plane...`);
             }
         }
         
         // Function to create a plane between two points using existing createPlane function
         function createContinuousPlane(point1, point2) {
-            console.log(`\n🔨 Creating continuous plane between points`);
-            console.log(`📍 CLICKED POINTS (X-Z plane):`);
-            console.log(`   Point 1: X=${point1.x.toFixed(2)}, Z=${point1.z.toFixed(2)}`);
-            console.log(`   Point 2: X=${point2.x.toFixed(2)}, Z=${point2.z.toFixed(2)}`);
             
             // Calculate plane properties
             const direction = new THREE.Vector3().subVectors(point2, point1);
             const length = direction.length();
             const center = new THREE.Vector3().addVectors(point1, point2).multiplyScalar(0.5);
             
-            console.log(`📐 DIRECTION VECTOR: dX=${direction.x.toFixed(2)}, dZ=${direction.z.toFixed(2)}`);
-            console.log(`📏 LENGTH: ${length.toFixed(2)}`);
             
             // Standard plane height (same as regular planes)
             const planeHeight = 1; // Default height for continuous planes
@@ -3245,10 +3353,6 @@
             continuousPlane.mesh.rotation.y = angle;
             continuousPlane.angle = angle * (180 / Math.PI);
             
-            console.log(`🔄 Direction: dX=${direction.x.toFixed(2)}, dZ=${direction.z.toFixed(2)}`);
-            console.log(`🔄 Applied rotation angle: ${(angle * 180 / Math.PI).toFixed(1)}°`);
-            
-            console.log(`🔄 ROTATION: ${(angle * 180 / Math.PI).toFixed(1)}° (Y-axis)`);
             
             // Calculate the four corners of the plane in world space for verification
             const halfWidth = length / 2;
@@ -3271,19 +3375,8 @@
                 return worldCorner;
             });
             
-            console.log(`📦 PLANE CORNERS (X-Z plane, Y=${planeHeight / 2}):`);
-            console.log(`   Corner 0 (bottom-left):  X=${worldCorners[0].x.toFixed(2)}, Z=${worldCorners[0].z.toFixed(2)}`);
-            console.log(`   Corner 1 (bottom-right): X=${worldCorners[1].x.toFixed(2)}, Z=${worldCorners[1].z.toFixed(2)}`);
-            console.log(`   Corner 2 (top-right):    X=${worldCorners[2].x.toFixed(2)}, Z=${worldCorners[2].z.toFixed(2)}`);
-            console.log(`   Corner 3 (top-left):     X=${worldCorners[3].x.toFixed(2)}, Z=${worldCorners[3].z.toFixed(2)}`);
-            console.log(`📌 PLANE CENTER: X=${center.x.toFixed(2)}, Z=${center.z.toFixed(2)}`);
             
             // Verify: The width edges should align with clicked points
-            console.log(`\n🔍 VERIFICATION:`);
-            console.log(`   Width edge 1 (corners 0&3 center): X=${((worldCorners[0].x + worldCorners[3].x)/2).toFixed(2)}, Z=${((worldCorners[0].z + worldCorners[3].z)/2).toFixed(2)}`);
-            console.log(`   Should match Point 1: X=${point1.x.toFixed(2)}, Z=${point1.z.toFixed(2)}`);
-            console.log(`   Width edge 2 (corners 1&2 center): X=${((worldCorners[1].x + worldCorners[2].x)/2).toFixed(2)}, Z=${((worldCorners[1].z + worldCorners[2].z)/2).toFixed(2)}`);
-            console.log(`   Should match Point 2: X=${point2.x.toFixed(2)}, Z=${point2.z.toFixed(2)}`);
             
             // Generate unique name similar to normal planes
             const planeNumber = planes.length;
@@ -3304,12 +3397,10 @@
             // Create top view line since we're in top view
             createTopViewLine(continuousPlane);
             
-            console.log(`✅ Plane "${continuousPlane.name}" created successfully\n`);
         }
         
         // Function to exit plane creation mode
         function exitPlaneMode() {
-            console.log("🚪 Exiting Plane Creation Mode");
             
             // Disable plane mode
             planeMode = false;
@@ -3332,14 +3423,12 @@
             addPlaneBtn.textContent = 'Add Walls';
             addPlaneBtn.style.background = '#00a19b';
             
-            console.log(`🏗️ Plane creation complete. Created ${continuousPlanes.length} continuous planes.`);
         }
         
         
         // Function to handle double-click to exit plane mode
         function handleDoubleClick(event) {
             if (planeMode) {
-                console.log("🖱️ Double-click detected - exiting plane mode");
                 event.preventDefault();
                 event.stopPropagation();
                 exitPlaneMode();
@@ -3356,51 +3445,59 @@
         document.getElementById('exportBtn').addEventListener('click', exportScene);
 
         function exportScene() {
-            const sceneData = {
-                version: '1.0',
-                imagePlane: {
-                    visible: imagePlane.visible,
-                    position: imagePlane.position.toArray(),
-                    rotation: imagePlane.rotation.toArray(),
-                    scale: imagePlane.scale.toArray(),
-                    geometry: {
-                        width: imagePlane.geometry.parameters.width,
-                        height: imagePlane.geometry.parameters.height
-                    },
-                    texture: imagePlane.material.map ? imagePlane.material.map.image.currentSrc : null
-                },
-                planes: planes.map(plane => ({
-                    name: plane.name,
-                    position: plane.mesh.position.toArray(),
-                    rotation: plane.mesh.rotation.toArray(),
-                    scale: [1, 1, 1],
-                    width: plane.width,
-                    height: plane.height,
-                    color: plane.color,
-                    temperature: plane.temperature,
-                    type: plane.type,
-                    // Include default values for proper import
-                    defaultWidth: plane.defaultWidth,
-                    defaultHeight: plane.defaultHeight,
-                    // Include derived properties
-                    x: plane.x,
-                    y: plane.y,
-                    z: plane.z,
-                    angle: plane.angle,
-                    incline: plane.incline
-                })),
-                scalingFactor: scalingdist ? {
-                    measuredDistance: scalingDistance,
-                    inputValue: document.getElementById('scalinginput').value
-                } : null
-            };
+            // Export all levels from sessionScenes, plus current scene if not already saved
+            const allScenes = getSavedScenes();
+            const currentSceneData = getCurrentSceneData();
+            
+            // Check if current scene is already saved
+            const currentSceneName = document.getElementById('sceneDropdown').value;
+            const isCurrentSceneSaved = currentSceneName && allScenes[currentSceneName];
+            
+            // Check if we have any saved levels
+            const hasSavedLevels = Object.keys(allScenes).length > 0;
+            
+            if (!hasSavedLevels && !isCurrentSceneSaved) {
+                // No levels saved, export as single level (old format for compatibility)
+                const blob = new Blob([JSON.stringify(currentSceneData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
 
-            const blob = new Blob([JSON.stringify(sceneData, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'Scene_export.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                return;
+            }
+            
+            // Create export data with all levels
+            const exportData = {
+                version: '2.0', // New version to indicate multi-level support
+                exportType: 'multiLevel',
+                levels: {},
+                currentLevel: currentSceneName || 'default'
+            };
+            
+            // Add all saved levels
+            Object.keys(allScenes).forEach(levelName => {
+                exportData.levels[levelName] = allScenes[levelName];
+            });
+            
+            // Add current scene if it's not already saved
+            if (!isCurrentSceneSaved) {
+                exportData.levels['current'] = {
+                    data: currentSceneData,
+                    timestamp: new Date().toISOString()
+                };
+            }
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
 
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'scene_export.json';
+            a.download = 'Scene_export.json';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -3421,8 +3518,15 @@
             const reader = new FileReader();
             reader.onload = function (e) {
                 try {
-                    const sceneData = JSON.parse(e.target.result);
-                    loadSceneData(sceneData);
+                    const importData = JSON.parse(e.target.result);
+                    
+                    // Check if this is a multi-level export
+                    if (importData.exportType === 'multiLevel' && importData.levels) {
+                        loadMultiLevelData(importData);
+                    } else {
+                        // Handle old single-level format
+                        loadSceneData(importData);
+                    }
                 } catch (error) {
                     console.error('Error parsing scene file:', error);
                     alert('Error loading scene file');
@@ -3481,32 +3585,74 @@
             // Reset scaling
             scalingDistance = 0;
             scalingdist = false;
-            document.getElementById('scalinginput').value = '';
+            const scaleInput = document.getElementById('scaleDistanceInput');
+            if (scaleInput) {
+                scaleInput.value = '';
+            }
+        }
+
+        async function loadMultiLevelData(importData) {
+            // Clear existing sessionScenes
+            sessionScenes = {};
+            
+            // Load all levels into sessionScenes
+            Object.keys(importData.levels).forEach(levelName => {
+                sessionScenes[levelName] = importData.levels[levelName];
+            });
+            
+            // Update the dropdown to show all imported levels
+            updateSceneDropdown();
+            
+            // Load the current level (or first level if currentLevel not specified)
+            const currentLevel = importData.currentLevel || Object.keys(importData.levels)[0];
+            if (currentLevel && importData.levels[currentLevel]) {
+                await loadSceneData(importData.levels[currentLevel]);
+                
+                // Set the dropdown to the current level
+                document.getElementById('sceneDropdown').value = currentLevel;
+            }
+            
+            alert(`Imported ${Object.keys(importData.levels).length} levels successfully!`);
         }
 
         async function loadSceneData(sceneData) {
+            // Handle both old format (direct scene data) and new format (level manager wrapped data)
+            let actualSceneData = sceneData;
+            if (sceneData.data && sceneData.timestamp) {
+                // This is a level manager scene (wrapped format)
+                actualSceneData = sceneData.data;
+            }
+            
+            // Validate that we have valid scene data
+            if (!actualSceneData || (!actualSceneData.planes && !actualSceneData.imagePlane)) {
+                console.error('Invalid scene data structure');
+                alert('Invalid scene file format');
+                return;
+            }
+            
             // Clear existing scene using the proper clearScene function
             clearScene();
 
             // Load image plane
-            if (sceneData.imagePlane.texture) {
-                await loadImageTexture(sceneData.imagePlane.texture);
+            if (actualSceneData.imagePlane && actualSceneData.imagePlane.texture) {
+                await loadImageTexture(actualSceneData.imagePlane.texture);
 
-                imagePlane.position.fromArray(sceneData.imagePlane.position);
-                imagePlane.rotation.fromArray(sceneData.imagePlane.rotation);
-                imagePlane.scale.fromArray(sceneData.imagePlane.scale);
-                imagePlane.visible = sceneData.imagePlane.visible;
+                imagePlane.position.fromArray(actualSceneData.imagePlane.position);
+                imagePlane.rotation.fromArray(actualSceneData.imagePlane.rotation);
+                imagePlane.scale.fromArray(actualSceneData.imagePlane.scale);
+                imagePlane.visible = actualSceneData.imagePlane.visible;
 
                 // Update geometry
                 imagePlane.geometry.dispose();
                 imagePlane.geometry = new THREE.PlaneGeometry(
-                    sceneData.imagePlane.geometry.width,
-                    sceneData.imagePlane.geometry.height
+                    actualSceneData.imagePlane.geometry.width,
+                    actualSceneData.imagePlane.geometry.height
                 );
             }
 
             // Load planes
-            sceneData.planes.forEach(planeData => {
+            if (actualSceneData.planes) {
+                actualSceneData.planes.forEach(planeData => {
                 const newPlane = createPlane(planeData.width, planeData.height);
                 newPlane.name = planeData.name || `Plane ${planes.length}`;
 
@@ -3577,6 +3723,12 @@
                     newPlane.incline = newPlane.mesh.rotation.x * (180 / Math.PI);
                 }
 
+                // Restore contour data for receiver planes
+                if (planeData.type === "Receiver" && planeData.contourData) {
+                    newPlane.contourData = planeData.contourData;
+                    console.log(`Restored contour data for receiver plane "${newPlane.name}": ${planeData.contourData.values.length} values`);
+                }
+
                 updateGUI(newPlane);
 
                 // Force a geometry update to ensure the mesh size matches the stored dimensions
@@ -3585,25 +3737,23 @@
                 }
                 newPlane.mesh.geometry = new THREE.PlaneGeometry(newPlane.width, newPlane.height);
 
-                // Debug logging
-                console.log(`Imported plane "${newPlane.name}":`, {
-                    width: newPlane.width,
-                    height: newPlane.height,
-                    defaultWidth: newPlane.defaultWidth,
-                    defaultHeight: newPlane.defaultHeight,
-                    scale: newPlane.mesh.scale.toArray(),
-                    position: newPlane.mesh.position.toArray(),
-                    geometry: {
-                        width: newPlane.mesh.geometry.parameters.width,
-                        height: newPlane.mesh.geometry.parameters.height
-                    }
+                // Apply contour texture if contour data exists
+                if (newPlane.type === "Receiver" && newPlane.contourData) {
+                    applyContourTexture(newPlane);
+                    console.log(`Applied contour texture to receiver plane "${newPlane.name}"`);
+                }
+
                 });
-            });
+            }
 
             // Load scaling data
-            if (sceneData.scalingFactor) {
-                scalingDistance = sceneData.scalingFactor.measuredDistance;
-                document.getElementById('scalinginput').value = sceneData.scalingFactor.inputValue;
+            if (actualSceneData.scalingFactor) {
+                scalingDistance = actualSceneData.scalingFactor.measuredDistance;
+                scalingdist = true;
+                const scaleInput = document.getElementById('scaleDistanceInput');
+                if (scaleInput) {
+                    scaleInput.value = actualSceneData.scalingFactor.inputValue;
+                }
             }
 
             // Validate and fix any scaling issues
@@ -3615,10 +3765,6 @@
                 const actualHeight = plane.mesh.geometry.parameters.height;
 
                 if (Math.abs(expectedWidth - actualWidth) > 0.001 || Math.abs(expectedHeight - actualHeight) > 0.001) {
-                    console.warn(`Fixing size mismatch for plane "${plane.name}":`, {
-                        expected: { width: expectedWidth, height: expectedHeight },
-                        actual: { width: actualWidth, height: actualHeight }
-                    });
 
                     // Recreate geometry with correct dimensions
                     plane.mesh.geometry.dispose();
@@ -3635,8 +3781,6 @@
                     createTopViewLine(plane);
                 });
             }
-
-            alert('Scene imported successfully!');
         }
 
         async function loadImageTexture(imageUrl) {
@@ -3699,11 +3843,13 @@
                     y: plane.y,
                     z: plane.z,
                     angle: plane.angle,
-                    incline: plane.incline
+                    incline: plane.incline,
+                    // Include contour data for receiver planes
+                    contourData: plane.type === "Receiver" && plane.contourData ? plane.contourData : null
                 })),
                 scalingFactor: scalingdist ? {
                     measuredDistance: scalingDistance,
-                    inputValue: document.getElementById('scalinginput').value
+                    inputValue: document.getElementById('scaleDistanceInput')?.value || ''
                 } : null
             };
         }
@@ -3736,7 +3882,25 @@
 
         // Save current scene button
         document.getElementById('saveSceneBtn').addEventListener('click', () => {
-            const sceneName = document.getElementById('sceneNameInput').value.trim();
+            showLevelNameModal();
+        });
+
+        // Level name modal functions
+        function showLevelNameModal() {
+            const modal = document.getElementById('levelNameModal');
+            const input = document.getElementById('levelNameInput');
+            modal.style.display = 'block';
+            input.value = '';
+            input.focus();
+        }
+
+        function hideLevelNameModal() {
+            const modal = document.getElementById('levelNameModal');
+            modal.style.display = 'none';
+        }
+
+        function confirmLevelName() {
+            const sceneName = document.getElementById('levelNameInput').value.trim();
             
             if (!sceneName) {
                 alert('Please enter a name for the scene');
@@ -3762,11 +3926,20 @@
             saveScenesToStorage(scenes);
             updateSceneDropdown();
             
-            // Clear input and select the saved scene in dropdown
-            document.getElementById('sceneNameInput').value = '';
+            // Select the saved scene in dropdown
             document.getElementById('sceneDropdown').value = sceneName;
             
+            hideLevelNameModal();
             alert(`Scene "${sceneName}" saved successfully!`);
+        }
+
+        // Event listeners for level name modal
+        document.getElementById('confirmLevelName').addEventListener('click', confirmLevelName);
+        
+        document.getElementById('levelNameInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                confirmLevelName();
+            }
         });
 
         // Load scene button
@@ -3788,7 +3961,7 @@
             
             // Load the scene
             try {
-                await loadSceneData(savedScene.data);
+                await loadSceneData(savedScene);
                 alert(`Scene "${sceneName}" loaded successfully!`);
             } catch (error) {
                 console.error('Error loading scene:', error);
@@ -3826,7 +3999,6 @@
             }
             
             clearScene();
-            alert('New blank canvas created!');
         });
 
         // Initialize scene dropdown on page load
@@ -3834,8 +4006,8 @@
         // ==================== END SCENE MANAGER ====================
 
         let dataarrayforcontour = null;
-        // Receiver grid size (N x N), default 10
-        let receiverGridSize = 10;
+        // Receiver grid size (N x N), default 2 (Low)
+        let receiverGridSize = 2;
         // Backend endpoint for contour generation
         const BACKEND_CONTOUR_URL = CONFIG.BACKEND_URL + CONFIG.CALCULATE_ENDPOINT;
         
@@ -4034,9 +4206,6 @@
         }
 
         function generatePointsOnPlane(plane, rows = 11, cols = 11) {
-            console.log(`🎯 Generating ${rows}x${cols} points for plane "${plane.name}"`);
-            console.log(`  Plane dimensions: ${plane.width} x ${plane.height}`);
-            console.log(`  Plane position: [${plane.mesh.position.x.toFixed(3)}, ${plane.mesh.position.y.toFixed(3)}, ${plane.mesh.position.z.toFixed(3)}]`);
             
             const points = [];
             const width = plane.width;
@@ -4083,12 +4252,6 @@
                 }
             }
 
-            // Log first, middle, and last points for validation
-            console.log(`  First point (0,0): [${points[0].position.x}, ${points[0].position.y}, ${points[0].position.z}]`);
-            const middleIdx = Math.floor(points.length / 2);
-            console.log(`  Middle point: [${points[middleIdx].position.x}, ${points[middleIdx].position.y}, ${points[middleIdx].position.z}]`);
-            console.log(`  Last point (${rows-1},${cols-1}): [${points[points.length-1].position.x}, ${points[points.length-1].position.y}, ${points[points.length-1].position.z}]`);
-            console.log(`  Total points generated: ${points.length}`);
 
             return points;
         }
@@ -4194,7 +4357,7 @@
                     if (plane.type === "Receiver") {
                         // Calculate grid dimensions based on actual plane size and user input N
                         // N represents points per unit length, so we calculate grid points directly
-                        const N = Math.max(1, Math.min(50, parseInt(receiverGridSize, 10) || 10));
+                        const N = Math.max(1, Math.min(10, parseInt(receiverGridSize, 10) || 2));
                         
                         // Calculate grid dimensions using actual dimensions (not rounded)
                         // This ensures the grid perfectly covers the plane without black edges
@@ -4349,13 +4512,17 @@
 
         document.getElementById("calculate").addEventListener("click", Pointsinfo);
         
-        // Update receiver grid size from input
+        // Update receiver grid size from dropdown
         const gridSizeEl = document.getElementById('gridSizeInput');
         if (gridSizeEl) {
+            // Set initial value
+            gridSizeEl.value = receiverGridSize.toString();
+            
             gridSizeEl.addEventListener('change', function () {
-                const val = parseInt(this.value, 3);
+                const val = parseInt(this.value, 10);
                 if (isNaN(val)) return;
-                receiverGridSize = Math.max(1, Math.min(10, val));
+                receiverGridSize = val;
+                console.log(`Precision changed to: ${this.options[this.selectedIndex].text} (${val})`);
             });
         }
         
@@ -4480,7 +4647,7 @@
 
                 // Select the new plane
                 newPlanes.push(newPlane);
-                newPlane.mesh.material.color.setHex(0xe3e3e3);
+                newPlane.mesh.material.color.setHex(0x808080);
             });
 
             selectedPlanes = [...newPlanes];
@@ -5022,7 +5189,7 @@
 
                 if (planeState.selected) {
                     selectedPlanes.push(plane);
-                    plane.mesh.material.color.setHex(0xe3e3e3);
+                    plane.mesh.material.color.setHex(0x808080);
                 } else {
                     plane.mesh.material.color.setHex(plane.color);
                 }
