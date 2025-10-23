@@ -1360,6 +1360,13 @@
         let selectedPlanes = []; // Array to store multiple selected planes
         let isShiftPressed = false; // Track shift key state
         
+        // Sphere selection and dragging
+        let selectedSphere = null;
+        let isDraggingSphere = false;
+        let dragStartPosition = new THREE.Vector3();
+        let sphereOriginalColor = null;
+        let orbitControlsDisabled = false;
+        
         // Plane creation variables
         let planeMode = false;
         let planePoints = [];
@@ -1545,11 +1552,17 @@
             // Toggle top view lines based on camera
             const isTopView = (camera === cameras.top);
 
-            // Clean up existing top view lines
+            // Clean up existing top view lines and spheres
             planes.forEach(plane => {
                 if (plane.mesh.userData.topViewLine) {
                     scene.remove(plane.mesh.userData.topViewLine);
                     plane.mesh.userData.topViewLine = null;
+                }
+                if (plane.mesh.userData.topViewSpheres) {
+                    plane.mesh.userData.topViewSpheres.forEach(sphere => {
+                        scene.remove(sphere);
+                    });
+                    plane.mesh.userData.topViewSpheres = null;
                 }
                 plane.mesh.visible = true; // Make sure all planes are visible by default
             });
@@ -1587,11 +1600,59 @@
         // setView(activeCamera);
 
         // Function to create top view line for a plane
+        // Helper function to get the two edge vertices of a plane
+        function getPlaneEdgeVertices(plane) {
+            const halfWidth = plane.width / 2;
+            const halfHeight = plane.height / 2;
+            
+            // Local corners (width along X, height along Y)
+            const localCorners = [
+                new THREE.Vector3(-halfWidth, -halfHeight, 0),  // Bottom-left
+                new THREE.Vector3(halfWidth, -halfHeight, 0),   // Bottom-right
+                new THREE.Vector3(halfWidth, halfHeight, 0),    // Top-right
+                new THREE.Vector3(-halfWidth, halfHeight, 0)     // Top-left
+            ];
+            
+            // Transform to world space using the mesh's actual quaternion
+            const worldCorners = localCorners.map(corner => {
+                const worldCorner = corner.clone();
+                worldCorner.applyQuaternion(plane.mesh.quaternion);
+                worldCorner.add(plane.mesh.position);
+                return worldCorner;
+            });
+            
+            // Find the two vertices that are furthest apart (the width edges)
+            let maxDistance = 0;
+            let edge1 = worldCorners[0];
+            let edge2 = worldCorners[1];
+            
+            for (let i = 0; i < worldCorners.length; i++) {
+                for (let j = i + 1; j < worldCorners.length; j++) {
+                    const distance = worldCorners[i].distanceTo(worldCorners[j]);
+                    if (distance > maxDistance) {
+                        maxDistance = distance;
+                        edge1 = worldCorners[i];
+                        edge2 = worldCorners[j];
+                    }
+                }
+            }
+            
+            return { edge1, edge2 };
+        }
+
         function createTopViewLine(plane) {
             // Remove existing top view line if it exists
             if (plane.mesh.userData.topViewLine) {
                 scene.remove(plane.mesh.userData.topViewLine);
                 plane.mesh.userData.topViewLine = null;
+            }
+            
+            // Remove existing spheres if they exist
+            if (plane.mesh.userData.topViewSpheres) {
+                plane.mesh.userData.topViewSpheres.forEach(sphere => {
+                    scene.remove(sphere);
+                });
+                plane.mesh.userData.topViewSpheres = null;
             }
             
             // Create a line geometry representing the plane's length with fixed width
@@ -1649,8 +1710,44 @@
             // Store reference to the line in the plane's userData
             plane.mesh.userData.topViewLine = line;
             
+            // Create small spheres at the edges for width control
+            const sphereGeometry = new THREE.SphereGeometry(0.2, 8, 6); // Very small spheres
+            const sphereMaterial = new THREE.MeshBasicMaterial({
+                color: plane.color,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            // Get the actual edge vertices of the plane
+            const { edge1, edge2 } = getPlaneEdgeVertices(plane);
+            
+            // Create two spheres at the actual edge positions
+            const sphere1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            const sphere2 = new THREE.Mesh(sphereGeometry, sphereMaterial);
+            
+            // Position spheres at the actual edge vertices (X-Z coordinates only)
+            sphere1.position.set(edge1.x, 0, edge1.z);
+            sphere2.position.set(edge2.x, 0, edge2.z);
+            
+            console.log(`Sphere positions from plane edges: (${edge1.x.toFixed(2)}, ${edge1.z.toFixed(2)}) to (${edge2.x.toFixed(2)}, ${edge2.z.toFixed(2)})`);
+            
+            // Store reference to parent plane and sphere index
+            sphere1.userData.parentPlane = plane;
+            sphere1.userData.sphereIndex = 0; // Left sphere
+            sphere2.userData.parentPlane = plane;
+            sphere2.userData.sphereIndex = 1; // Right sphere
+            
+            // Make spheres selectable
+            sphere1.userData.isSelectable = true;
+            sphere2.userData.isSelectable = true;
+            
+            // Store spheres in plane's userData
+            plane.mesh.userData.topViewSpheres = [sphere1, sphere2];
+            
             // Add to scene
             scene.add(line);
+            scene.add(sphere1);
+            scene.add(sphere2);
         }
 
         // Function to update top view line when plane changes
@@ -1665,7 +1762,21 @@
                 // Update the line's position to match
                 line.position.copy(worldPosition);
                 
-                // If the plane's dimensions or rotation changed, recreate the line
+                // Update spheres position if they exist
+                if (plane.mesh.userData.topViewSpheres) {
+                    const spheres = plane.mesh.userData.topViewSpheres;
+                    
+                    // Get the actual edge vertices of the plane
+                    const { edge1, edge2 } = getPlaneEdgeVertices(plane);
+                    
+                    // Update sphere positions to match actual plane edges
+                    spheres[0].position.set(edge1.x, 0, edge1.z);
+                    spheres[1].position.set(edge2.x, 0, edge2.z);
+                    
+                    console.log(`Updated sphere positions from plane edges: (${edge1.x.toFixed(2)}, ${edge1.z.toFixed(2)}) to (${edge2.x.toFixed(2)}, ${edge2.z.toFixed(2)})`);
+                }
+                
+                // If the plane's dimensions or rotation changed, recreate the line and spheres
                 const currentWidth = plane.width;
                 const currentAngle = plane.angle;
                 const currentIncline = plane.incline;
@@ -1676,9 +1787,14 @@
                     line.userData.lastAngle !== currentAngle ||
                     line.userData.lastIncline !== currentIncline) {
                     
-                    // Dimensions or rotation changed, need to recreate geometry
+                    // Dimensions or rotation changed, need to recreate geometry and spheres
                     scene.remove(line);
-                createTopViewLine(plane);
+                    if (plane.mesh.userData.topViewSpheres) {
+                        plane.mesh.userData.topViewSpheres.forEach(sphere => {
+                            scene.remove(sphere);
+                        });
+                    }
+                    createTopViewLine(plane);
                     
                     // Store current values
                     if (plane.mesh.userData.topViewLine) {
@@ -1694,6 +1810,13 @@
         function updateTopViewLineColor(plane, color) {
             if (activeCamera === cameras.top && plane.mesh.userData.topViewLine) {
                 plane.mesh.userData.topViewLine.material.color.setHex(color);
+                
+                // Update sphere colors as well
+                if (plane.mesh.userData.topViewSpheres) {
+                    plane.mesh.userData.topViewSpheres.forEach(sphere => {
+                        sphere.material.color.setHex(color);
+                    });
+                }
             }
         }
 
@@ -1978,6 +2101,182 @@
         let nextId = 1;
         function generateId() {
             return nextId++;
+        }
+
+        // Sphere selection and dragging functions
+        function selectSphere(sphere) {
+            // Deselect all spheres first
+            deselectAllSpheres();
+            
+            // Select only the clicked sphere
+            selectedSphere = sphere;
+            sphereOriginalColor = sphere.material.color.getHex();
+            sphere.material.color.setHex(0x000000); // Black when selected
+            console.log('Sphere selected:', sphere.userData.sphereIndex, 'Plane:', sphere.userData.parentPlane.name);
+        }
+
+        function deselectAllSpheres() {
+            console.log('Deselecting all spheres...');
+            // Deselect all spheres in all planes
+            planes.forEach(plane => {
+                if (plane.mesh.userData.topViewSpheres) {
+                    plane.mesh.userData.topViewSpheres.forEach(sphere => {
+                        // Restore original color (plane color)
+                        const plane = sphere.userData.parentPlane;
+                        sphere.material.color.setHex(plane.color);
+                        console.log('Restored sphere color to:', plane.color);
+                    });
+                }
+            });
+            
+            selectedSphere = null;
+            sphereOriginalColor = null;
+        }
+
+        function deselectSphere() {
+            if (selectedSphere) {
+                // Restore original color (plane color)
+                const plane = selectedSphere.userData.parentPlane;
+                selectedSphere.material.color.setHex(plane.color);
+                selectedSphere = null;
+                sphereOriginalColor = null;
+            }
+        }
+
+        function startSphereDrag(sphere, mousePosition) {
+            if (activeCamera !== cameras.top) return;
+            
+            isDraggingSphere = true;
+            dragStartPosition.copy(mousePosition);
+            
+            // Disable orbit controls during sphere dragging
+            controls.enabled = false;
+            
+            // Disable snap-to-grid during sphere dragging
+            if (typeof snapToGrid !== 'undefined') {
+                snapToGrid = false;
+            }
+            
+            console.log('Started dragging sphere');
+        }
+
+        function updateSphereDrag(mousePosition) {
+            if (!isDraggingSphere || !selectedSphere) return;
+            
+            // Calculate drag delta in X-Z plane
+            const deltaX = mousePosition.x - dragStartPosition.x;
+            const deltaZ = mousePosition.z - dragStartPosition.z;
+            
+            console.log(`Drag delta: (${deltaX.toFixed(3)}, ${deltaZ.toFixed(3)})`);
+            console.log(`Sphere position before: (${selectedSphere.position.x.toFixed(3)}, ${selectedSphere.position.z.toFixed(3)})`);
+            
+            // Update sphere position
+            selectedSphere.position.x += deltaX;
+            selectedSphere.position.z += deltaZ;
+            
+            console.log(`Sphere position after: (${selectedSphere.position.x.toFixed(3)}, ${selectedSphere.position.z.toFixed(3)})`);
+            
+            // Update drag start position for next frame
+            dragStartPosition.copy(mousePosition);
+            
+            // Update the plane based on sphere movement
+            updatePlaneFromSphereDrag();
+        }
+
+        function endSphereDrag() {
+            if (isDraggingSphere) {
+                isDraggingSphere = false;
+                
+                // Update plane geometry and rotation after dragging is complete
+                if (selectedSphere) {
+                    const plane = selectedSphere.userData.parentPlane;
+                    const spheres = plane.mesh.userData.topViewSpheres;
+                    
+                    if (spheres && spheres.length === 2) {
+                        // Get final sphere positions
+                        const sphere1Pos = spheres[0].position.clone();
+                        const sphere2Pos = spheres[1].position.clone();
+                        
+                        // Calculate new plane center
+                        const centerX = (sphere1Pos.x + sphere2Pos.x) / 2;
+                        const centerZ = (sphere1Pos.z + sphere2Pos.z) / 2;
+                        
+                        // Calculate new plane width
+                        const newWidth = Math.sqrt(
+                            Math.pow(sphere2Pos.x - sphere1Pos.x, 2) + 
+                            Math.pow(sphere2Pos.z - sphere1Pos.z, 2)
+                        );
+                        
+                        // Calculate rotation angle from sphere positions
+                        const deltaX = sphere2Pos.x - sphere1Pos.x;
+                        const deltaZ = sphere2Pos.z - sphere1Pos.z;
+                        const newAngle = -Math.atan2(deltaZ, deltaX) * (180 / Math.PI);
+                        
+                        console.log(`Sphere positions: (${sphere1Pos.x.toFixed(2)}, ${sphere1Pos.z.toFixed(2)}) to (${sphere2Pos.x.toFixed(2)}, ${sphere2Pos.z.toFixed(2)})`);
+                        console.log(`Calculated angle: ${newAngle.toFixed(2)}°`);
+                        
+                        // Update plane properties
+                        plane.mesh.position.x = centerX;
+                        plane.mesh.position.z = centerZ;
+                        plane.x = centerX;
+                        plane.z = centerZ;
+                        plane.width = newWidth;
+                        plane.defaultWidth = newWidth;
+                        plane.angle = newAngle;
+                        
+                        // Update plane geometry
+                        plane.mesh.geometry.dispose();
+                        plane.mesh.geometry = new THREE.PlaneGeometry(plane.width, plane.height);
+                        
+                        // Update plane rotation
+                        plane.mesh.rotation.y = newAngle * (Math.PI / 180);
+                        
+                        console.log(`Updated plane: center(${centerX.toFixed(2)}, ${centerZ.toFixed(2)}), width: ${newWidth.toFixed(2)}, angle: ${newAngle.toFixed(2)}°`);
+                    }
+                    
+                    // Update wireframe to reflect new plane properties
+                    // But preserve the sphere positions by storing and restoring them
+                    const savedSpherePositions = [];
+                    if (spheres && spheres.length === 2) {
+                        savedSpherePositions[0] = spheres[0].position.clone();
+                        savedSpherePositions[1] = spheres[1].position.clone();
+                    }
+                    
+                    updateTopViewLine(plane);
+                    
+                    // Restore sphere positions after wireframe update
+                    if (savedSpherePositions.length === 2 && plane.mesh.userData.topViewSpheres) {
+                        const newSpheres = plane.mesh.userData.topViewSpheres;
+                        if (newSpheres.length === 2) {
+                            newSpheres[0].position.copy(savedSpherePositions[0]);
+                            newSpheres[1].position.copy(savedSpherePositions[1]);
+                        }
+                    }
+                }
+                
+                // Deselect all spheres when dragging ends
+                deselectAllSpheres();
+                
+                // Don't re-enable orbit controls immediately - wait for next click
+                orbitControlsDisabled = true;
+                
+                // Re-enable snap-to-grid after sphere dragging
+                if (typeof snapToGrid !== 'undefined') {
+                    snapToGrid = true;
+                }
+                
+                console.log('Ended dragging sphere');
+            }
+        }
+
+        function updatePlaneFromSphereDrag() {
+            if (!selectedSphere) return;
+            
+            // During dragging, we only move the selected sphere
+            // The plane geometry will be updated after dragging is complete
+            // This prevents the other sphere from moving
+            
+            console.log(`Dragging sphere ${selectedSphere.userData.sphereIndex} to: (${selectedSphere.position.x.toFixed(2)}, ${selectedSphere.position.z.toFixed(2)})`);
         }
 
         // Multi-select functions for height and type changes
@@ -2514,6 +2813,13 @@
 
             for (let i = 0; i < intersects.length; i++) {
                 const object = intersects[i].object;
+
+                // Check if clicked on a sphere (only in top view)
+                if (activeCamera === cameras.top && object.userData && object.userData.isSelectable && object.userData.parentPlane) {
+                    const sphere = object;
+                    selectSphere(sphere);
+                    return; // Exit early to prevent other click handlers
+                }
 
                 // Check if clicked on a top view line
                 if (object.userData && object.userData.parentPlane) {
@@ -3440,6 +3746,67 @@
         
         // Double-click to exit plane mode
         document.addEventListener('dblclick', handleDoubleClick);
+
+        // Mouse move handler for sphere dragging
+        renderer.domElement.addEventListener('mousemove', (event) => {
+            if (isDraggingSphere && activeCamera === cameras.top) {
+                const mouse = new THREE.Vector2();
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(mouse, activeCamera);
+                
+                // Get intersection with ground plane (Y=0)
+                const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+                const intersectionPoint = new THREE.Vector3();
+                raycaster.ray.intersectPlane(groundPlane, intersectionPoint);
+                
+                if (intersectionPoint) {
+                    console.log('Updating sphere drag to:', intersectionPoint.x, intersectionPoint.z);
+                    updateSphereDrag(intersectionPoint);
+                }
+            }
+        });
+
+        // Mouse down handler for sphere dragging
+        renderer.domElement.addEventListener('mousedown', (event) => {
+            console.log('Mouse down - selectedSphere:', selectedSphere, 'isDraggingSphere:', isDraggingSphere);
+            if (activeCamera === cameras.top && selectedSphere && !isDraggingSphere) {
+                const mouse = new THREE.Vector2();
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(mouse, activeCamera);
+                const intersects = raycaster.intersectObjects([selectedSphere]);
+                
+                console.log('Intersects with selected sphere:', intersects.length);
+                if (intersects.length > 0) {
+                    const mousePosition = new THREE.Vector3();
+                    raycaster.ray.at(intersects[0].distance, mousePosition);
+                    console.log('Starting sphere drag...');
+                    startSphereDrag(selectedSphere, mousePosition);
+                }
+            }
+        });
+
+        // Mouse up handler for sphere dragging
+        renderer.domElement.addEventListener('mouseup', (event) => {
+            if (isDraggingSphere) {
+                endSphereDrag();
+            }
+        });
+
+        // Re-enable OrbitControls when user clicks after sphere dragging
+        renderer.domElement.addEventListener('mousedown', function(event) {
+            if (orbitControlsDisabled) {
+                // Re-enable OrbitControls when user clicks anywhere
+                controls.enabled = true;
+                orbitControlsDisabled = false;
+                console.log('OrbitControls re-enabled after sphere drag');
+            }
+        });
 
         // Export function
         document.getElementById('exportBtn').addEventListener('click', exportScene);
