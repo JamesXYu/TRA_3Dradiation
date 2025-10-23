@@ -1118,6 +1118,7 @@
         <input type="text" id="levelNameInput" placeholder="Enter level name">
         <br>
         <button id="confirmLevelName">Save Level</button>
+        <button id="cancelLevelName">Cancel</button>
     </div>
     <svg id="contour-svg" width="512" height="512" style="display:none;"></svg>
 
@@ -1149,7 +1150,7 @@
         // Configuration
         const CONFIG = {
             // Backend API URL - Company network deployment
-            BACKEND_URL: 'http://10.14.1.165:8080', // Company network static IP
+            BACKEND_URL: 'http://192.168.0.218:8080', // Company network static IP
             
             // API endpoints
             CALCULATE_ENDPOINT: '/calculate',
@@ -1198,13 +1199,13 @@
             console.log('Testing backend connection...');
             const isHealthy = await checkBackendHealth();
             if (isHealthy) {
-                console.log('✅ Backend is healthy');
+                console.log(' Backend is healthy');
                 const status = await getBackendStatus();
                 if (status) {
                     console.log('Backend status:', status);
                 }
             } else {
-                console.warn('⚠️ Backend is not responding. Check your configuration.');
+                console.warn('Backend is not responding. Check your configuration.');
                 console.log('Current backend URL:', CONFIG.BACKEND_URL);
             }
         }
@@ -1252,7 +1253,6 @@
 
             history = [initialState];
             historyIndex = 0;
-            console.log("Initial history state captured with full plane properties");
         }
 
 
@@ -1261,8 +1261,6 @@
             if (historyIndex > 0) {
                 historyIndex--;
                 restoreState(historyIndex);
-            } else {
-                console.log("No more undo steps available.");
             }
         }
 
@@ -1270,8 +1268,6 @@
             if (historyIndex < history.length - 1) {
                 historyIndex++;
                 restoreState(historyIndex);
-            } else {
-                console.log("No more redo steps available.");
             }
         }
 
@@ -1613,6 +1609,22 @@
         }
         // setView(activeCamera);
 
+        // Helper function to remove all top view lines and spheres
+        function removeAllTopViewElements() {
+            planes.forEach(plane => {
+                if (plane.mesh.userData.topViewLine) {
+                    scene.remove(plane.mesh.userData.topViewLine);
+                    plane.mesh.userData.topViewLine = null;
+                }
+                if (plane.mesh.userData.topViewSpheres) {
+                    plane.mesh.userData.topViewSpheres.forEach(sphere => {
+                        scene.remove(sphere);
+                    });
+                    plane.mesh.userData.topViewSpheres = null;
+                }
+            });
+        }
+
         // Function to create top view line for a plane
         // Helper function to get the two edge vertices of a plane
         function getPlaneEdgeVertices(plane) {
@@ -1765,19 +1777,6 @@
             sphere2.userData.sphereIndex = 1; // Right sphere
             sphere2.userData.isSelectable = true; // Set immediately after parentPlane
             
-            // Verify properties are set (avoid circular reference with parentPlane)
-            console.log(`[createTopViewLine] Sphere 1 userData after init:`, {
-                isSelectable: sphere1.userData.isSelectable,
-                sphereIndex: sphere1.userData.sphereIndex,
-                hasParentPlane: !!sphere1.userData.parentPlane,
-                parentPlaneName: sphere1.userData.parentPlane?.name
-            });
-            console.log(`[createTopViewLine] Sphere 2 userData after init:`, {
-                isSelectable: sphere2.userData.isSelectable,
-                sphereIndex: sphere2.userData.sphereIndex,
-                hasParentPlane: !!sphere2.userData.parentPlane,
-                parentPlaneName: sphere2.userData.parentPlane?.name
-            });
             
             // Store spheres in plane's userData
             plane.mesh.userData.topViewSpheres = [sphere1, sphere2];
@@ -1800,37 +1799,16 @@
             // Ensure spheres are always selectable (double-check)
             sphere1.userData.isSelectable = true;
             sphere2.userData.isSelectable = true;
-            
-            // Debug: Log sphere creation with detailed information
-            console.log(`[createTopViewLine] Creating spheres for plane: ${plane.name}`);
-            console.log(`[createTopViewLine] Sphere 1:`, {
-                position: `(${sphere1.position.x.toFixed(2)}, ${sphere1.position.y.toFixed(2)}, ${sphere1.position.z.toFixed(2)})`,
-                isSelectable: sphere1.userData.isSelectable,
-                hasParentPlane: !!sphere1.userData.parentPlane,
-                parentPlaneName: sphere1.userData.parentPlane?.name,
-                sphereIndex: sphere1.userData.sphereIndex,
-                addedToScene: scene.children.includes(sphere1)
-            });
-            console.log(`[createTopViewLine] Sphere 2:`, {
-                position: `(${sphere2.position.x.toFixed(2)}, ${sphere2.position.y.toFixed(2)}, ${sphere2.position.z.toFixed(2)})`,
-                isSelectable: sphere2.userData.isSelectable,
-                hasParentPlane: !!sphere2.userData.parentPlane,
-                parentPlaneName: sphere2.userData.parentPlane?.name,
-                sphereIndex: sphere2.userData.sphereIndex,
-                addedToScene: scene.children.includes(sphere2)
-            });
         }
 
         // Function to update top view line when plane changes
         function updateTopViewLine(plane) {
             if (!plane || !plane.mesh) {
-                console.warn('[updateTopViewLine] Invalid plane object');
                 return;
             }
             
             // If no top view line exists, create one
             if (!plane.mesh.userData.topViewLine) {
-                console.log(`[updateTopViewLine] No topViewLine found for ${plane.name}, creating one`);
                 createTopViewLine(plane);
                 return;
             }
@@ -1893,8 +1871,6 @@
             
             // Only recreate if width changed significantly (rotation/position updates are handled above)
             if (line.userData.lastWidth && Math.abs(line.userData.lastWidth - currentWidth) > 0.01) {
-                console.log(`[updateTopViewLine] Width changed for ${plane.name}, recreating line and spheres`);
-                
                 // Width changed, recreate everything for clean geometry
                 scene.remove(line);
                 if (plane.mesh.userData.topViewSpheres) {
@@ -2226,11 +2202,9 @@
             selectedSphere = sphere;
             sphereOriginalColor = sphere.material.color.getHex();
             sphere.material.color.setHex(0x000000); // Black when selected
-            console.log('Sphere selected:', sphere.userData.sphereIndex, 'Plane:', sphere.userData.parentPlane.name);
         }
 
         function deselectAllSpheres() {
-            console.log('Deselecting all spheres...');
             // Deselect all spheres in all planes
             planes.forEach(plane => {
                 if (plane.mesh.userData.topViewSpheres) {
@@ -2239,7 +2213,6 @@
                         const plane = sphere.userData.parentPlane;
                         sphere.material.color.setHex(plane.color);
                         sphere.material.opacity = 0.9;
-                        console.log('Restored sphere color to:', plane.color);
                     });
                 }
             });
@@ -2281,8 +2254,6 @@
             if (typeof snapToGrid !== 'undefined') {
                 snapToGrid = false;
             }
-            
-            console.log('Started dragging sphere');
         }
 
         function updateSphereDrag(mousePosition) {
@@ -2332,9 +2303,6 @@
                         const deltaZ = sphere2Pos.z - sphere1Pos.z;
                         const newAngle = -Math.atan2(deltaZ, deltaX) * (180 / Math.PI);
                         
-                        console.log(`Sphere positions: (${sphere1Pos.x.toFixed(2)}, ${sphere1Pos.z.toFixed(2)}) to (${sphere2Pos.x.toFixed(2)}, ${sphere2Pos.z.toFixed(2)})`);
-                        console.log(`Calculated angle: ${newAngle.toFixed(2)}°`);
-                        
                         // Update plane properties
                         plane.mesh.position.x = centerX;
                         plane.mesh.position.z = centerZ;
@@ -2350,8 +2318,6 @@
                         
                         // Update plane rotation
                         plane.mesh.rotation.y = newAngle * (Math.PI / 180);
-                        
-                        console.log(`Updated plane: center(${centerX.toFixed(2)}, ${centerZ.toFixed(2)}), width: ${newWidth.toFixed(2)}, angle: ${newAngle.toFixed(2)}°`);
                     }
                     
                     // Update wireframe to reflect new plane properties
@@ -2384,8 +2350,6 @@
                 if (typeof snapToGrid !== 'undefined') {
                     snapToGrid = true;
                 }
-                
-                console.log('Ended dragging sphere');
             }
         }
 
@@ -2470,8 +2434,6 @@
                     }
                 }
             });
-            
-            console.log(`Changed height of ${selectedPlanes.length} planes to ${newHeight}`);
         }
 
         function changeMultiplePlanesType(newType) {
@@ -2509,8 +2471,6 @@
                     visualizeNormal(planeData);
                 }
             });
-            
-            console.log(`Changed type of ${selectedPlanes.length} planes to ${newType}`);
         }
 
         // Function to create a new plane
@@ -3022,7 +2982,6 @@
                     foundSphere.material.color.setHex(0xFFFFFF); // White when hovering
                     foundSphere.material.opacity = 1.0;
                     renderer.domElement.style.cursor = 'pointer';
-                    console.log(`[Hover] Sphere ${foundSphere.userData.sphereIndex} on ${foundSphere.userData.parentPlane.name} - Double-click to select`);
                 } else {
                     renderer.domElement.style.cursor = 'default';
                 }
@@ -3043,23 +3002,6 @@
             raycaster.setFromCamera(mouse, activeCamera);
             const intersects = raycaster.intersectObjects(scene.children, true);
 
-            // Debug: Log all intersections in top view to help debug sphere selection
-            if (activeCamera === cameras.top && intersects.length > 0) {
-                console.log(`[Click Handler] ${intersects.length} objects intersected in top view at (${mouse.x.toFixed(2)}, ${mouse.y.toFixed(2)})`);
-                intersects.forEach((intersect, idx) => {
-                    const obj = intersect.object;
-                    const isSphere = obj.geometry && obj.geometry.type === 'SphereGeometry';
-                    console.log(`  [${idx}] ${isSphere ? '⚫ SPHERE' : obj.type}:`, {
-                        geometryType: obj.geometry?.type,
-                        isSelectable: obj.userData?.isSelectable,
-                        hasParentPlane: !!obj.userData?.parentPlane,
-                        parentPlaneName: obj.userData?.parentPlane?.name,
-                        sphereIndex: obj.userData?.sphereIndex,
-                        position: `(${obj.position.x.toFixed(2)}, ${obj.position.y.toFixed(2)}, ${obj.position.z.toFixed(2)})`,
-                        userDataKeys: obj.userData ? Object.keys(obj.userData) : []
-                    });
-                });
-            }
 
             // Clear previous group if not holding shift and clicking empty space
             if (!isShiftPressed && selectedPlaneGroup && intersects.length === 0) {
@@ -3082,7 +3024,6 @@
                         // Check if this is a double-click on the same sphere
                         if (lastClickedSphere === sphere && (currentTime - lastSphereClickTime) < SPHERE_DOUBLE_CLICK_DELAY) {
                             // Double-click detected!
-                            console.log('[Click Handler] Sphere DOUBLE-CLICKED:', sphere.userData.sphereIndex, 'Plane:', sphere.userData.parentPlane.name);
                             selectSphere(sphere);
                             
                             // Reset double-click tracking
@@ -3091,7 +3032,6 @@
                             return; // Exit early to prevent other click handlers
                         } else {
                             // First click - store for double-click detection
-                            console.log('[Click Handler] Sphere first click:', sphere.userData.sphereIndex, 'Plane:', sphere.userData.parentPlane.name, '- Click again to select');
                             lastClickedSphere = sphere;
                             lastSphereClickTime = currentTime;
                             
@@ -3113,12 +3053,6 @@
             // PRIORITY 2: No spheres found, check other objects (lines, planes, etc.)
             for (let i = 0; i < intersects.length; i++) {
                 const object = intersects[i].object;
-                
-                // Debug: Log all objects with userData in top view
-                if (activeCamera === cameras.top && object.userData) {
-                    console.log('Object clicked:', object.userData, 'isSelectable:', object.userData.isSelectable, 'parentPlane:', object.userData.parentPlane?.name);
-                }
-                
 
                 // Check if clicked on a top view line
                 if (object.userData && object.userData.parentPlane) {
@@ -3130,7 +3064,6 @@
                     
                     // Ensure the plane still exists in the planes array
                     if (!planes.includes(planeData)) {
-                        console.warn('Top view line references a plane that no longer exists');
                         return;
                     }
                     
@@ -3914,7 +3847,7 @@
             // Update UI - disable the Add Plane Mode button while active
             const addPlaneBtn = document.getElementById('addPlaneMode');
             addPlaneBtn.disabled = true;
-            addPlaneBtn.textContent = 'Walls Mode Active';
+            addPlaneBtn.textContent = 'Adding walls';
             addPlaneBtn.style.background = '#dc3545';
             
         }
@@ -3973,47 +3906,20 @@
             createTopViewLine(continuousPlane);
             
             // Verify and ensure spheres have proper userData properties for selection
-            console.log(`[createContinuousPlane] Verifying sphere properties for plane: ${continuousPlane.name}`);
-            
             if (continuousPlane.mesh.userData.topViewSpheres) {
                 const spheres = continuousPlane.mesh.userData.topViewSpheres;
-                console.log(`[createContinuousPlane] Found ${spheres.length} spheres to verify`);
                 
                 spheres.forEach((sphere, index) => {
                     // Ensure all required userData properties are set
                     sphere.userData.isSelectable = true;
                     sphere.userData.parentPlane = continuousPlane;
                     sphere.userData.sphereIndex = index;
-                    
-                    console.log(`[createContinuousPlane] Sphere ${index}:`, {
-                        position: `(${sphere.position.x.toFixed(2)}, ${sphere.position.y.toFixed(2)}, ${sphere.position.z.toFixed(2)})`,
-                        isSelectable: sphere.userData.isSelectable,
-                        hasParentPlane: !!sphere.userData.parentPlane,
-                        parentPlaneName: sphere.userData.parentPlane?.name,
-                        sphereIndex: sphere.userData.sphereIndex,
-                        inScene: scene.children.includes(sphere),
-                        geometryType: sphere.geometry?.type,
-                        userDataKeys: Object.keys(sphere.userData)
-                    });
                 });
-                
-                // Count all spheres in scene for verification
-                const allSpheres = scene.children.filter(obj => obj.geometry && obj.geometry.type === 'SphereGeometry');
-                console.log(`[createContinuousPlane] Total spheres in scene: ${allSpheres.length}`);
-            } else {
-                console.warn(`[createContinuousPlane] No topViewSpheres found for plane: ${continuousPlane.name}`);
             }
-            
-            // Don't capture state here - we'll do it in batch when plane mode exits
-            // This prevents multiple state captures that can interfere with sphere userData
-            console.log(`[createContinuousPlane] Plane ${continuousPlane.name} created (state capture deferred)`);
         }
         
         // Function to exit plane creation mode
         function exitPlaneMode() {
-            
-            console.log(`[exitPlaneMode] Exiting plane mode, capturing final state`);
-            
             // Capture state once for all planes created in this session
             if (planePoints.length > 0) {
                 captureState("Walls created");
@@ -4081,21 +3987,18 @@
 
         // Mouse down handler for sphere dragging
         renderer.domElement.addEventListener('mousedown', (event) => {
-            console.log('Mouse down - selectedSphere:', selectedSphere, 'isDraggingSphere:', isDraggingSphere);
             if (activeCamera === cameras.top && selectedSphere && !isDraggingSphere) {
                 const mouse = new THREE.Vector2();
                 mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
                 mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
+                
                 const raycaster = new THREE.Raycaster();
                 raycaster.setFromCamera(mouse, activeCamera);
                 const intersects = raycaster.intersectObjects([selectedSphere]);
                 
-                console.log('Intersects with selected sphere:', intersects.length);
                 if (intersects.length > 0) {
                     const mousePosition = new THREE.Vector3();
                     raycaster.ray.at(intersects[0].distance, mousePosition);
-                    console.log('Starting sphere drag...');
                     startSphereDrag(selectedSphere, mousePosition);
                 }
             }
@@ -4114,7 +4017,6 @@
                 // Re-enable OrbitControls when user clicks anywhere
                 controls.enabled = true;
                 orbitControlsDisabled = false;
-                console.log('OrbitControls re-enabled after sphere drag');
             }
         });
 
@@ -4229,6 +4131,13 @@
                     // Remove top view line if exists
                     if (planeData.mesh.userData.topViewLine) {
                         scene.remove(planeData.mesh.userData.topViewLine);
+                    }
+                    
+                    // Remove top view spheres if exist
+                    if (planeData.mesh.userData.topViewSpheres) {
+                        planeData.mesh.userData.topViewSpheres.forEach(sphere => {
+                            scene.remove(sphere);
+                        });
                     }
                     
                     // Dispose geometry and material
@@ -4584,12 +4493,27 @@
                 return;
             }
             
+            // Check if we're in top view
+            const wasInTopView = (activeCamera === cameras.top);
+            
+            // Remove all top view elements (spheres and lines) before saving
+            // This ensures they don't get saved as part of the scene
+            if (wasInTopView) {
+                removeAllTopViewElements();
+            }
+            
             const scenes = getSavedScenes();
             const sceneData = getCurrentSceneData();
             
             // Check if scene name already exists
             if (scenes[sceneName]) {
                 if (!confirm(`Scene "${sceneName}" already exists. Do you want to overwrite it?`)) {
+                    // Recreate top view elements if we were in top view
+                    if (wasInTopView) {
+                        planes.forEach(plane => {
+                            createTopViewLine(plane);
+                        });
+                    }
                     return;
                 }
             }
@@ -4606,6 +4530,13 @@
             // Select the saved scene in dropdown
             document.getElementById('sceneDropdown').value = sceneName;
             
+            // Recreate top view elements if we're in top view
+            if (wasInTopView) {
+                planes.forEach(plane => {
+                    createTopViewLine(plane);
+                });
+            }
+            
             hideLevelNameModal();
             alert(`Scene "${sceneName}" saved successfully!`);
         }
@@ -4613,9 +4544,13 @@
         // Event listeners for level name modal
         document.getElementById('confirmLevelName').addEventListener('click', confirmLevelName);
         
+        document.getElementById('cancelLevelName').addEventListener('click', hideLevelNameModal);
+        
         document.getElementById('levelNameInput').addEventListener('keypress', function(event) {
             if (event.key === 'Enter') {
                 confirmLevelName();
+            } else if (event.key === 'Escape') {
+                hideLevelNameModal();
             }
         });
 
@@ -5783,9 +5718,6 @@
                 history.shift();
                 historyIndex--;
             }
-
-            console.log(`State captured: ${description} - Total planes: ${planes.length}, Selected: ${selectedPlanes.length}`);
-            console.log(`Plane IDs in state: ${state.planes.map(p => p.id).join(', ')}`);
         }
 
 
