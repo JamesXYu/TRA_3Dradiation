@@ -1367,6 +1367,14 @@
         let sphereOriginalColor = null;
         let orbitControlsDisabled = false;
         
+        // Double-click detection for spheres
+        let lastClickedSphere = null;
+        let lastSphereClickTime = 0;
+        const SPHERE_DOUBLE_CLICK_DELAY = 500; // 500ms window for double-click (generous for easier use)
+        
+        // Hover state for spheres
+        let hoveredSphere = null;
+        
         // Plane creation variables
         let planeMode = false;
         let planePoints = [];
@@ -1580,6 +1588,12 @@
             if (isTopView) {
                 planes.forEach(plane => {
                     createTopViewLine(plane);
+                    // Ensure spheres are selectable
+                    if (plane.mesh.userData.topViewSpheres) {
+                        plane.mesh.userData.topViewSpheres.forEach(sphere => {
+                            sphere.userData.isSelectable = true;
+                        });
+                    }
                 });
             }
 
@@ -1613,11 +1627,17 @@
                 new THREE.Vector3(-halfWidth, halfHeight, 0)     // Top-left
             ];
             
-            // Transform to world space using the mesh's actual quaternion
+            // Get world position and quaternion (important for grouped planes)
+            const worldPosition = new THREE.Vector3();
+            const worldQuaternion = new THREE.Quaternion();
+            plane.mesh.getWorldPosition(worldPosition);
+            plane.mesh.getWorldQuaternion(worldQuaternion);
+            
+            // Transform to world space using the mesh's actual world quaternion and position
             const worldCorners = localCorners.map(corner => {
                 const worldCorner = corner.clone();
-                worldCorner.applyQuaternion(plane.mesh.quaternion);
-                worldCorner.add(plane.mesh.position);
+                worldCorner.applyQuaternion(worldQuaternion);
+                worldCorner.add(worldPosition);
                 return worldCorner;
             });
             
@@ -1711,11 +1731,12 @@
             plane.mesh.userData.topViewLine = line;
             
             // Create small spheres at the edges for width control
-            const sphereGeometry = new THREE.SphereGeometry(0.2, 8, 6); // Very small spheres
+            const sphereGeometry = new THREE.SphereGeometry(0.3, 16, 12); // Larger spheres for easier clicking
             const sphereMaterial = new THREE.MeshBasicMaterial({
                 color: plane.color,
                 transparent: true,
-                opacity: 0.8
+                opacity: 0.9
+                // MeshBasicMaterial doesn't respond to lighting, giving a flat 2D appearance
             });
             
             // Get the actual edge vertices of the plane
@@ -1725,84 +1746,177 @@
             const sphere1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
             const sphere2 = new THREE.Mesh(sphereGeometry, sphereMaterial);
             
+            // IMPORTANT: Initialize userData BEFORE setting any properties
+            sphere1.userData = {};
+            sphere2.userData = {};
+            
             // Position spheres at the actual edge vertices (X-Z coordinates only)
             sphere1.position.set(edge1.x, 0, edge1.z);
             sphere2.position.set(edge2.x, 0, edge2.z);
             
-            console.log(`Sphere positions from plane edges: (${edge1.x.toFixed(2)}, ${edge1.z.toFixed(2)}) to (${edge2.x.toFixed(2)}, ${edge2.z.toFixed(2)})`);
+            // console.log(`Sphere positions from plane edges: (${edge1.x.toFixed(2)}, ${edge1.z.toFixed(2)}) to (${edge2.x.toFixed(2)}, ${edge2.z.toFixed(2)})`);
             
             // Store reference to parent plane and sphere index
             sphere1.userData.parentPlane = plane;
             sphere1.userData.sphereIndex = 0; // Left sphere
+            sphere1.userData.isSelectable = true; // Set immediately after parentPlane
+            
             sphere2.userData.parentPlane = plane;
             sphere2.userData.sphereIndex = 1; // Right sphere
+            sphere2.userData.isSelectable = true; // Set immediately after parentPlane
             
-            // Make spheres selectable
-            sphere1.userData.isSelectable = true;
-            sphere2.userData.isSelectable = true;
+            // Verify properties are set (avoid circular reference with parentPlane)
+            console.log(`[createTopViewLine] Sphere 1 userData after init:`, {
+                isSelectable: sphere1.userData.isSelectable,
+                sphereIndex: sphere1.userData.sphereIndex,
+                hasParentPlane: !!sphere1.userData.parentPlane,
+                parentPlaneName: sphere1.userData.parentPlane?.name
+            });
+            console.log(`[createTopViewLine] Sphere 2 userData after init:`, {
+                isSelectable: sphere2.userData.isSelectable,
+                sphereIndex: sphere2.userData.sphereIndex,
+                hasParentPlane: !!sphere2.userData.parentPlane,
+                parentPlaneName: sphere2.userData.parentPlane?.name
+            });
             
             // Store spheres in plane's userData
             plane.mesh.userData.topViewSpheres = [sphere1, sphere2];
+            
+            // Set rendering order to ensure spheres appear on top of lines
+            // Higher renderOrder values render on top
+            line.renderOrder = 1;
+            sphere1.renderOrder = 10; // Much higher to ensure they're always on top
+            sphere2.renderOrder = 10;
+            
+            // Disable depth test for spheres so they always render on top
+            sphere1.material.depthTest = false;
+            sphere2.material.depthTest = false;
             
             // Add to scene
             scene.add(line);
             scene.add(sphere1);
             scene.add(sphere2);
+            
+            // Ensure spheres are always selectable (double-check)
+            sphere1.userData.isSelectable = true;
+            sphere2.userData.isSelectable = true;
+            
+            // Debug: Log sphere creation with detailed information
+            console.log(`[createTopViewLine] Creating spheres for plane: ${plane.name}`);
+            console.log(`[createTopViewLine] Sphere 1:`, {
+                position: `(${sphere1.position.x.toFixed(2)}, ${sphere1.position.y.toFixed(2)}, ${sphere1.position.z.toFixed(2)})`,
+                isSelectable: sphere1.userData.isSelectable,
+                hasParentPlane: !!sphere1.userData.parentPlane,
+                parentPlaneName: sphere1.userData.parentPlane?.name,
+                sphereIndex: sphere1.userData.sphereIndex,
+                addedToScene: scene.children.includes(sphere1)
+            });
+            console.log(`[createTopViewLine] Sphere 2:`, {
+                position: `(${sphere2.position.x.toFixed(2)}, ${sphere2.position.y.toFixed(2)}, ${sphere2.position.z.toFixed(2)})`,
+                isSelectable: sphere2.userData.isSelectable,
+                hasParentPlane: !!sphere2.userData.parentPlane,
+                parentPlaneName: sphere2.userData.parentPlane?.name,
+                sphereIndex: sphere2.userData.sphereIndex,
+                addedToScene: scene.children.includes(sphere2)
+            });
         }
 
         // Function to update top view line when plane changes
         function updateTopViewLine(plane) {
-            if (plane.mesh.userData.topViewLine) {
-                const line = plane.mesh.userData.topViewLine;
+            if (!plane || !plane.mesh) {
+                console.warn('[updateTopViewLine] Invalid plane object');
+                return;
+            }
+            
+            // If no top view line exists, create one
+            if (!plane.mesh.userData.topViewLine) {
+                console.log(`[updateTopViewLine] No topViewLine found for ${plane.name}, creating one`);
+                createTopViewLine(plane);
+                return;
+            }
+            
+            const line = plane.mesh.userData.topViewLine;
+            
+            // Get the plane's current world position
+            const worldPosition = new THREE.Vector3();
+            plane.mesh.getWorldPosition(worldPosition);
+            
+            // Update the line's position to match plane's world position
+            line.position.copy(worldPosition);
+            
+            // Update the line geometry to match current plane rotation
+            const lineLength = plane.width;
+            const fixedWidth = 0.3;
+            
+            // Create new points based on current rotation
+            const points = [
+                new THREE.Vector3(-lineLength/2, 0, -fixedWidth/2),
+                new THREE.Vector3(lineLength/2, 0, -fixedWidth/2),
+                new THREE.Vector3(lineLength/2, 0, fixedWidth/2),
+                new THREE.Vector3(-lineLength/2, 0, fixedWidth/2),
+                new THREE.Vector3(-lineLength/2, 0, -fixedWidth/2) // Close the loop
+            ];
+            
+            // Apply the plane's rotation to the points
+            const rotationMatrix = new THREE.Matrix4();
+            rotationMatrix.makeRotationFromEuler(new THREE.Euler(
+                plane.incline * Math.PI / 180,
+                plane.angle * Math.PI / 180,
+                0
+            ));
+            
+            points.forEach(point => {
+                point.applyMatrix4(rotationMatrix);
+            });
+            
+            // Update the line geometry with new points
+            line.geometry.setFromPoints(points);
+            
+            // Update spheres position if they exist
+            if (plane.mesh.userData.topViewSpheres) {
+                const spheres = plane.mesh.userData.topViewSpheres;
                 
-                // Get the plane's current world position
-                const worldPosition = new THREE.Vector3();
-                plane.mesh.getWorldPosition(worldPosition);
+                // Get the actual edge vertices of the plane
+                const { edge1, edge2 } = getPlaneEdgeVertices(plane);
                 
-                // Update the line's position to match
-                line.position.copy(worldPosition);
-                
-                // Update spheres position if they exist
-                if (plane.mesh.userData.topViewSpheres) {
-                    const spheres = plane.mesh.userData.topViewSpheres;
-                    
-                    // Get the actual edge vertices of the plane
-                    const { edge1, edge2 } = getPlaneEdgeVertices(plane);
-                    
-                    // Update sphere positions to match actual plane edges
+                // Update sphere positions to match actual plane edges
+                if (spheres[0] && spheres[1]) {
                     spheres[0].position.set(edge1.x, 0, edge1.z);
                     spheres[1].position.set(edge2.x, 0, edge2.z);
-                    
-                    console.log(`Updated sphere positions from plane edges: (${edge1.x.toFixed(2)}, ${edge1.z.toFixed(2)}) to (${edge2.x.toFixed(2)}, ${edge2.z.toFixed(2)})`);
                 }
+            }
+            
+            // Check if dimensions changed significantly - if so, recreate for clean geometry
+            const currentWidth = plane.width;
+            const currentAngle = plane.angle;
+            const currentIncline = plane.incline;
+            
+            // Only recreate if width changed significantly (rotation/position updates are handled above)
+            if (line.userData.lastWidth && Math.abs(line.userData.lastWidth - currentWidth) > 0.01) {
+                console.log(`[updateTopViewLine] Width changed for ${plane.name}, recreating line and spheres`);
                 
-                // If the plane's dimensions or rotation changed, recreate the line and spheres
-                const currentWidth = plane.width;
-                const currentAngle = plane.angle;
-                const currentIncline = plane.incline;
-                
-                // Store last known values to detect changes
-                if (!line.userData.lastWidth || 
-                    line.userData.lastWidth !== currentWidth ||
-                    line.userData.lastAngle !== currentAngle ||
-                    line.userData.lastIncline !== currentIncline) {
-                    
-                    // Dimensions or rotation changed, need to recreate geometry and spheres
-                    scene.remove(line);
-                    if (plane.mesh.userData.topViewSpheres) {
-                        plane.mesh.userData.topViewSpheres.forEach(sphere => {
-                            scene.remove(sphere);
-                        });
-                    }
-                    createTopViewLine(plane);
-                    
-                    // Store current values
-                    if (plane.mesh.userData.topViewLine) {
-                        plane.mesh.userData.topViewLine.userData.lastWidth = currentWidth;
-                        plane.mesh.userData.topViewLine.userData.lastAngle = currentAngle;
-                        plane.mesh.userData.topViewLine.userData.lastIncline = currentIncline;
-                    }
+                // Width changed, recreate everything for clean geometry
+                scene.remove(line);
+                if (plane.mesh.userData.topViewSpheres) {
+                    plane.mesh.userData.topViewSpheres.forEach(sphere => {
+                        scene.remove(sphere);
+                    });
                 }
+                createTopViewLine(plane);
+                
+                // Ensure newly created spheres are selectable
+                if (plane.mesh.userData.topViewSpheres) {
+                    plane.mesh.userData.topViewSpheres.forEach((sphere, index) => {
+                        sphere.userData.isSelectable = true;
+                        sphere.userData.parentPlane = plane;
+                        sphere.userData.sphereIndex = index;
+                    });
+                }
+            } else {
+                // Just store current values for next comparison
+                line.userData.lastWidth = currentWidth;
+                line.userData.lastAngle = currentAngle;
+                line.userData.lastIncline = currentIncline;
             }
         }
 
@@ -2124,6 +2238,7 @@
                         // Restore original color (plane color)
                         const plane = sphere.userData.parentPlane;
                         sphere.material.color.setHex(plane.color);
+                        sphere.material.opacity = 0.9;
                         console.log('Restored sphere color to:', plane.color);
                     });
                 }
@@ -2131,6 +2246,11 @@
             
             selectedSphere = null;
             sphereOriginalColor = null;
+            hoveredSphere = null;
+            
+            // Reset double-click tracking
+            lastClickedSphere = null;
+            lastSphereClickTime = 0;
         }
 
         function deselectSphere() {
@@ -2138,9 +2258,14 @@
                 // Restore original color (plane color)
                 const plane = selectedSphere.userData.parentPlane;
                 selectedSphere.material.color.setHex(plane.color);
+                selectedSphere.material.opacity = 0.9;
                 selectedSphere = null;
                 sphereOriginalColor = null;
             }
+            
+            // Reset double-click tracking
+            lastClickedSphere = null;
+            lastSphereClickTime = 0;
         }
 
         function startSphereDrag(sphere, mousePosition) {
@@ -2337,6 +2462,12 @@
                 // Update top view line if in top view
                 if (activeCamera === cameras.top) {
                     updateTopViewLine(planeData);
+                    // Ensure spheres are selectable after update
+                    if (planeData.mesh.userData.topViewSpheres) {
+                        planeData.mesh.userData.topViewSpheres.forEach(sphere => {
+                            sphere.userData.isSelectable = true;
+                        });
+                    }
                 }
             });
             
@@ -2383,7 +2514,7 @@
         }
 
         // Function to create a new plane
-        function createPlane(width = 1, height = 1) {
+        function createPlane(width = 1, height = 1, skipStateCapture = false) {
             const geometry = new THREE.PlaneGeometry(width, height);
             // Default to Receiver type with dark yellow color
             const defaultType = "Receiver";
@@ -2433,7 +2564,11 @@
             if (history.length === 0) {
                 initializeHistory();
             }
-            captureState("Plane created");
+            
+            // Only capture state if not skipped (e.g., during continuous plane creation)
+            if (!skipStateCapture) {
+                captureState("Plane created");
+            }
             return planeData;
 
         }
@@ -2835,14 +2970,96 @@
         }
 
 
+        // Add hover detection for spheres to provide visual feedback
+        renderer.domElement.addEventListener('mousemove', (event) => {
+            // Only check hover in top view
+            if (activeCamera !== cameras.top) {
+                if (hoveredSphere) {
+                    // Clear hover state if not in top view
+                    const plane = hoveredSphere.userData.parentPlane;
+                    hoveredSphere.material.color.setHex(plane.color);
+                    hoveredSphere.material.opacity = 0.9;
+                    hoveredSphere = null;
+                }
+                return;
+            }
+            
+            const mouse = new THREE.Vector2();
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            const raycaster = new THREE.Raycaster();
+            raycaster.params.Points.threshold = 0.5;
+            raycaster.params.Line.threshold = 0.1;
+            raycaster.setFromCamera(mouse, activeCamera);
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            
+            let foundSphere = null;
+            
+            // Check if hovering over a sphere - prioritize spheres over other objects
+            for (let i = 0; i < intersects.length; i++) {
+                const object = intersects[i].object;
+                // Explicitly check for sphere geometry to ensure we're hovering over a sphere, not a line
+                if (object.userData && object.userData.isSelectable && object.userData.parentPlane &&
+                    object.geometry && object.geometry.type === 'SphereGeometry') {
+                    foundSphere = object;
+                    break; // Stop at first sphere found
+                }
+            }
+            
+            // Update hover state
+            if (foundSphere !== hoveredSphere) {
+                // Remove hover effect from previous sphere
+                if (hoveredSphere && hoveredSphere !== selectedSphere) {
+                    const prevPlane = hoveredSphere.userData.parentPlane;
+                    hoveredSphere.material.color.setHex(prevPlane.color);
+                    hoveredSphere.material.opacity = 0.9;
+                }
+                
+                // Apply hover effect to new sphere
+                if (foundSphere && foundSphere !== selectedSphere) {
+                    // Brighten the sphere to indicate it's hoverable
+                    foundSphere.material.color.setHex(0xFFFFFF); // White when hovering
+                    foundSphere.material.opacity = 1.0;
+                    renderer.domElement.style.cursor = 'pointer';
+                    console.log(`[Hover] Sphere ${foundSphere.userData.sphereIndex} on ${foundSphere.userData.parentPlane.name} - Double-click to select`);
+                } else {
+                    renderer.domElement.style.cursor = 'default';
+                }
+                
+                hoveredSphere = foundSphere;
+            }
+        });
+
         renderer.domElement.addEventListener('click', (event) => {
             const mouse = new THREE.Vector2();
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
             const raycaster = new THREE.Raycaster();
+            // Increase raycaster threshold for better sphere detection
+            raycaster.params.Points.threshold = 0.5;
+            raycaster.params.Line.threshold = 0.1;
             raycaster.setFromCamera(mouse, activeCamera);
             const intersects = raycaster.intersectObjects(scene.children, true);
+
+            // Debug: Log all intersections in top view to help debug sphere selection
+            if (activeCamera === cameras.top && intersects.length > 0) {
+                console.log(`[Click Handler] ${intersects.length} objects intersected in top view at (${mouse.x.toFixed(2)}, ${mouse.y.toFixed(2)})`);
+                intersects.forEach((intersect, idx) => {
+                    const obj = intersect.object;
+                    const isSphere = obj.geometry && obj.geometry.type === 'SphereGeometry';
+                    console.log(`  [${idx}] ${isSphere ? '⚫ SPHERE' : obj.type}:`, {
+                        geometryType: obj.geometry?.type,
+                        isSelectable: obj.userData?.isSelectable,
+                        hasParentPlane: !!obj.userData?.parentPlane,
+                        parentPlaneName: obj.userData?.parentPlane?.name,
+                        sphereIndex: obj.userData?.sphereIndex,
+                        position: `(${obj.position.x.toFixed(2)}, ${obj.position.y.toFixed(2)}, ${obj.position.z.toFixed(2)})`,
+                        userDataKeys: obj.userData ? Object.keys(obj.userData) : []
+                    });
+                });
+            }
 
             // Clear previous group if not holding shift and clicking empty space
             if (!isShiftPressed && selectedPlaneGroup && intersects.length === 0) {
@@ -2850,18 +3067,65 @@
                 return;
             }
 
+            // PRIORITY 1: Check for spheres FIRST across ALL intersects (ignore distance order)
+            // This ensures spheres are selected even when overlapping with lines
+            if (activeCamera === cameras.top) {
+                for (let i = 0; i < intersects.length; i++) {
+                    const object = intersects[i].object;
+                    
+                    // Check if this is a selectable sphere
+                    if (object.userData && object.userData.isSelectable && object.userData.parentPlane && 
+                        object.geometry && object.geometry.type === 'SphereGeometry') {
+                        const sphere = object;
+                        const currentTime = Date.now();
+                        
+                        // Check if this is a double-click on the same sphere
+                        if (lastClickedSphere === sphere && (currentTime - lastSphereClickTime) < SPHERE_DOUBLE_CLICK_DELAY) {
+                            // Double-click detected!
+                            console.log('[Click Handler] Sphere DOUBLE-CLICKED:', sphere.userData.sphereIndex, 'Plane:', sphere.userData.parentPlane.name);
+                            selectSphere(sphere);
+                            
+                            // Reset double-click tracking
+                            lastClickedSphere = null;
+                            lastSphereClickTime = 0;
+                            return; // Exit early to prevent other click handlers
+                        } else {
+                            // First click - store for double-click detection
+                            console.log('[Click Handler] Sphere first click:', sphere.userData.sphereIndex, 'Plane:', sphere.userData.parentPlane.name, '- Click again to select');
+                            lastClickedSphere = sphere;
+                            lastSphereClickTime = currentTime;
+                            
+                            // Give visual feedback that sphere was clicked once (pulse opacity)
+                            const originalOpacity = sphere.material.opacity;
+                            sphere.material.opacity = 1.0;
+                            setTimeout(() => {
+                                if (sphere.material) {
+                                    sphere.material.opacity = originalOpacity;
+                                }
+                            }, SPHERE_DOUBLE_CLICK_DELAY);
+                            
+                            return; // Exit but don't select yet
+                        }
+                    }
+                }
+            }
+
+            // PRIORITY 2: No spheres found, check other objects (lines, planes, etc.)
             for (let i = 0; i < intersects.length; i++) {
                 const object = intersects[i].object;
-
-                // Check if clicked on a sphere (only in top view)
-                if (activeCamera === cameras.top && object.userData && object.userData.isSelectable && object.userData.parentPlane) {
-                    const sphere = object;
-                    selectSphere(sphere);
-                    return; // Exit early to prevent other click handlers
+                
+                // Debug: Log all objects with userData in top view
+                if (activeCamera === cameras.top && object.userData) {
+                    console.log('Object clicked:', object.userData, 'isSelectable:', object.userData.isSelectable, 'parentPlane:', object.userData.parentPlane?.name);
                 }
+                
 
                 // Check if clicked on a top view line
                 if (object.userData && object.userData.parentPlane) {
+                    // Reset double-click state since we're clicking on a line, not sphere
+                    lastClickedSphere = null;
+                    lastSphereClickTime = 0;
+                    
                     const planeData = object.userData.parentPlane;
                     
                     // Ensure the plane still exists in the planes array
@@ -2946,6 +3210,10 @@
                 }
 
                 if (planeData) {
+                    // Reset double-click state since we're clicking on a plane, not sphere
+                    lastClickedSphere = null;
+                    lastSphereClickTime = 0;
+                    
                     if (isShiftPressed) {
                         // Shift+click - toggle selection
                         const index = selectedPlanes.indexOf(planeData);
@@ -3026,6 +3294,10 @@
                 gui.destroy();
                 gui = new dat.GUI();
                 removeNormalArrow(); // Remove arrow when nothing is selected
+                
+                // Reset sphere double-click tracking when clicking empty space
+                lastClickedSphere = null;
+                lastSphereClickTime = 0;
             }
         });
 
@@ -3237,7 +3509,9 @@
                     
                     // Update top view line if in top view
                     if (activeCamera === cameras.top) {
-                        updateTopViewLine(selectedPlanes[selectedPlanes.length - 1]);
+                        const plane = selectedPlanes[selectedPlanes.length - 1];
+                        // console.log(`[objectChange] Updating topViewLine for ${plane.name} at (${plane.x.toFixed(2)}, ${plane.y.toFixed(2)}, ${plane.z.toFixed(2)})`);
+                        updateTopViewLine(plane);
                     }
                 }
                 if (selectedPlanes.length > 0) {
@@ -3660,68 +3934,25 @@
         
         // Function to create a plane between two points using existing createPlane function
         function createContinuousPlane(point1, point2) {
-            
             // Calculate plane properties
             const direction = new THREE.Vector3().subVectors(point2, point1);
             const length = direction.length();
             const center = new THREE.Vector3().addVectors(point1, point2).multiplyScalar(0.5);
             
-            
-            // Standard plane height (same as regular planes)
-            const planeHeight = 1; // Default height for continuous planes
-            
-            // Create a plane using the existing createPlane function
-            const continuousPlane = createPlane(length, planeHeight);
+            // Create a plane using the existing createPlane function with calculated width
+            // Skip state capture here - we'll do it in batch when exiting plane mode
+            const continuousPlane = createPlane(length, 1, true); // Use calculated length as width, standard height of 1, skip state capture
             
             // Position the plane at the center point
-            continuousPlane.mesh.position.set(center.x, planeHeight / 2, center.z);
+            continuousPlane.mesh.position.set(center.x, 0.5, center.z);
             continuousPlane.x = center.x;
-            continuousPlane.y = planeHeight / 2;
+            continuousPlane.y = 0.5;
             continuousPlane.z = center.z;
             
-            // Rotate to face the correct direction
-            // PlaneGeometry in Three.js:
-            // - Width is along the X-axis (horizontal when rotation.y = 0)
-            // - Height is along the Y-axis (vertical)
-            // - Normal faces the Z-axis
-            // 
-            // When rotation.y = 0, the plane's local X-axis points in the world +Z direction
-            // We need to calculate how much to rotate so the local X-axis points from point1 to point2
-            //
-            // The direction vector is (direction.x, direction.z) in world XZ plane
-            // atan2(direction.x, direction.z) gives angle from +Z to direction
-            // But we need to add 90° because the plane's width is perpendicular to its initial orientation
+            // Calculate rotation angle to align with the two points
             const angle = Math.atan2(direction.x, direction.z) - Math.PI / 2;
-            
-            // Reset rotation first to ensure clean rotation (important for subsequent planes)
-            continuousPlane.mesh.rotation.set(0, 0, 0);
             continuousPlane.mesh.rotation.y = angle;
             continuousPlane.angle = angle * (180 / Math.PI);
-            
-            
-            // Calculate the four corners of the plane in world space for verification
-            const halfWidth = length / 2;
-            const halfHeight = planeHeight / 2;
-            
-            // Local corners (width along X, height along Y)
-            // Bottom-left, bottom-right, top-right, top-left (when looking at the plane)
-            const localCorners = [
-                new THREE.Vector3(-halfWidth, -halfHeight, 0),  // Bottom-left edge (closer to point1)
-                new THREE.Vector3(halfWidth, -halfHeight, 0),   // Bottom-right edge (closer to point2)
-                new THREE.Vector3(halfWidth, halfHeight, 0),    // Top-right edge (closer to point2)
-                new THREE.Vector3(-halfWidth, halfHeight, 0)    // Top-left edge (closer to point1)
-            ];
-            
-            // Transform to world space using the mesh's actual quaternion
-            const worldCorners = localCorners.map(corner => {
-                const worldCorner = corner.clone();
-                worldCorner.applyQuaternion(continuousPlane.mesh.quaternion);
-                worldCorner.add(continuousPlane.mesh.position);
-                return worldCorner;
-            });
-            
-            
-            // Verify: The width edges should align with clicked points
             
             // Generate unique name similar to normal planes
             const planeNumber = planes.length;
@@ -3736,16 +3967,57 @@
             
             continuousPlane.name = baseName;
             
-            // Store reference
-            continuousPlanes.push(continuousPlane);
+            // Note: createPlane() already adds the plane to the planes array, so no need to push again
             
             // Create top view line since we're in top view
             createTopViewLine(continuousPlane);
             
+            // Verify and ensure spheres have proper userData properties for selection
+            console.log(`[createContinuousPlane] Verifying sphere properties for plane: ${continuousPlane.name}`);
+            
+            if (continuousPlane.mesh.userData.topViewSpheres) {
+                const spheres = continuousPlane.mesh.userData.topViewSpheres;
+                console.log(`[createContinuousPlane] Found ${spheres.length} spheres to verify`);
+                
+                spheres.forEach((sphere, index) => {
+                    // Ensure all required userData properties are set
+                    sphere.userData.isSelectable = true;
+                    sphere.userData.parentPlane = continuousPlane;
+                    sphere.userData.sphereIndex = index;
+                    
+                    console.log(`[createContinuousPlane] Sphere ${index}:`, {
+                        position: `(${sphere.position.x.toFixed(2)}, ${sphere.position.y.toFixed(2)}, ${sphere.position.z.toFixed(2)})`,
+                        isSelectable: sphere.userData.isSelectable,
+                        hasParentPlane: !!sphere.userData.parentPlane,
+                        parentPlaneName: sphere.userData.parentPlane?.name,
+                        sphereIndex: sphere.userData.sphereIndex,
+                        inScene: scene.children.includes(sphere),
+                        geometryType: sphere.geometry?.type,
+                        userDataKeys: Object.keys(sphere.userData)
+                    });
+                });
+                
+                // Count all spheres in scene for verification
+                const allSpheres = scene.children.filter(obj => obj.geometry && obj.geometry.type === 'SphereGeometry');
+                console.log(`[createContinuousPlane] Total spheres in scene: ${allSpheres.length}`);
+            } else {
+                console.warn(`[createContinuousPlane] No topViewSpheres found for plane: ${continuousPlane.name}`);
+            }
+            
+            // Don't capture state here - we'll do it in batch when plane mode exits
+            // This prevents multiple state captures that can interfere with sphere userData
+            console.log(`[createContinuousPlane] Plane ${continuousPlane.name} created (state capture deferred)`);
         }
         
         // Function to exit plane creation mode
         function exitPlaneMode() {
+            
+            console.log(`[exitPlaneMode] Exiting plane mode, capturing final state`);
+            
+            // Capture state once for all planes created in this session
+            if (planePoints.length > 0) {
+                captureState("Walls created");
+            }
             
             // Disable plane mode
             planeMode = false;
@@ -5631,6 +5903,14 @@
                     console.log(`Set plane ${plane.id} position to: ${planeState.position}`);
                 }
             });
+            
+            // Recreate top view lines and spheres for all planes if in top view
+            if (activeCamera === cameras.top) {
+                newPlanes.forEach(plane => {
+                    createTopViewLine(plane);
+                });
+                console.log(`[restoreState] Recreated topViewLines and spheres for ${newPlanes.length} planes`);
+            }
 
             // Restore group if needed
             if (state.groups) {
