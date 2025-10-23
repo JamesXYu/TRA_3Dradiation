@@ -2167,20 +2167,15 @@
             const deltaX = mousePosition.x - dragStartPosition.x;
             const deltaZ = mousePosition.z - dragStartPosition.z;
             
-            console.log(`Drag delta: (${deltaX.toFixed(3)}, ${deltaZ.toFixed(3)})`);
-            console.log(`Sphere position before: (${selectedSphere.position.x.toFixed(3)}, ${selectedSphere.position.z.toFixed(3)})`);
-            
             // Update sphere position
             selectedSphere.position.x += deltaX;
             selectedSphere.position.z += deltaZ;
             
-            console.log(`Sphere position after: (${selectedSphere.position.x.toFixed(3)}, ${selectedSphere.position.z.toFixed(3)})`);
-            
             // Update drag start position for next frame
             dragStartPosition.copy(mousePosition);
             
-            // Update the plane based on sphere movement
-            updatePlaneFromSphereDrag();
+            // Update wireframe in real-time during dragging
+            updateWireframeFromSpheres();
         }
 
         function endSphereDrag() {
@@ -2269,6 +2264,51 @@
             }
         }
 
+        function updateWireframeFromSpheres() {
+            if (!selectedSphere) return;
+            
+            const plane = selectedSphere.userData.parentPlane;
+            const spheres = plane.mesh.userData.topViewSpheres;
+            
+            if (!spheres || spheres.length !== 2) return;
+            
+            // Get current sphere positions
+            const sphere1Pos = spheres[0].position.clone();
+            const sphere2Pos = spheres[1].position.clone();
+            
+            // Update wireframe to directly connect the two spheres
+            if (plane.mesh.userData.topViewLine) {
+                const line = plane.mesh.userData.topViewLine;
+                
+                // Calculate the vector from sphere1 to sphere2
+                const direction = new THREE.Vector3();
+                direction.subVectors(sphere2Pos, sphere1Pos);
+                const distance = direction.length();
+                
+                // Create wireframe points that connect the spheres
+                const fixedWidth = 0.3;
+                const halfWidth = fixedWidth / 2;
+                
+                // Create a rectangle that connects the two spheres
+                const points = [
+                    new THREE.Vector3(sphere1Pos.x, 0, sphere1Pos.z - halfWidth),
+                    new THREE.Vector3(sphere2Pos.x, 0, sphere2Pos.z - halfWidth),
+                    new THREE.Vector3(sphere2Pos.x, 0, sphere2Pos.z + halfWidth),
+                    new THREE.Vector3(sphere1Pos.x, 0, sphere1Pos.z + halfWidth),
+                    new THREE.Vector3(sphere1Pos.x, 0, sphere1Pos.z - halfWidth)
+                ];
+                
+                // Update line geometry to connect the spheres
+                line.geometry.dispose();
+                line.geometry = new THREE.BufferGeometry();
+                line.geometry.setFromPoints(points);
+                
+                // Position the line at the origin (since points are in world coordinates)
+                line.position.set(0, 0, 0);
+                line.rotation.set(0, 0, 0);
+            }
+        }
+
         function updatePlaneFromSphereDrag() {
             if (!selectedSphere) return;
             
@@ -2276,7 +2316,6 @@
             // The plane geometry will be updated after dragging is complete
             // This prevents the other sphere from moving
             
-            console.log(`Dragging sphere ${selectedSphere.userData.sphereIndex} to: (${selectedSphere.position.x.toFixed(2)}, ${selectedSphere.position.z.toFixed(2)})`);
         }
 
         // Multi-select functions for height and type changes
@@ -3763,7 +3802,6 @@
                 raycaster.ray.intersectPlane(groundPlane, intersectionPoint);
                 
                 if (intersectionPoint) {
-                    console.log('Updating sphere drag to:', intersectionPoint.x, intersectionPoint.z);
                     updateSphereDrag(intersectionPoint);
                 }
             }
