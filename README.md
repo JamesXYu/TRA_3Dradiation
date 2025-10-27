@@ -559,30 +559,6 @@ Each has:
 
 ---
 
-## 🎓 Learning Path
-
-### Beginner
-1. Create 2 planes (1 emitter, 1 receiver)
-2. Set emitter temperature
-3. Calculate and view results
-4. Understand color scale
-
-### Intermediate
-1. Import floor plan
-2. Create room with walls
-3. Add multiple receivers
-4. Use multi-select and copy-paste
-5. Save/load levels
-
-### Advanced
-1. Complex geometries
-2. Optimize plane placement
-3. Adjust grid resolution
-4. Fine-tune with sphere controls
-5. Export for documentation
-
----
-
 ## 📞 Quick Reference Card
 
 **Most Common Shortcuts:**
@@ -597,22 +573,11 @@ Shift + Click   Multi-select
 Ctrl + C/V      Copy/Paste
 ```
 
-**Most Common Workflow:**
-```
-1. Add plane(s)
-2. Position with W (translate)
-3. Resize with E (scale)
-4. Set type (Emitter/Receiver)
-5. Set temperature (if emitter)
-6. Calculate
-7. View results
-```
-
 ---
 
 ## 📖 Related Documentation
 
-- **README.md**: Installation and setup guide
+- **README.md**: Installation and setup guide (ignore)
 - **Browser Console** (F12): Detailed calculation logs and error messages
 - **Backend**: See `backend/server.cpp` for calculation details
 
