@@ -16,6 +16,7 @@ REM ============================================
 if "%1"=="" goto :usage
 if /i "%1"=="setup" goto :setup
 if /i "%1"=="start" goto :start
+if /i "%1"=="persist" goto :persist
 if /i "%1"=="stop" goto :stop
 if /i "%1"=="restart" goto :restart
 if /i "%1"=="status" goto :status
@@ -201,6 +202,103 @@ if %BACKEND_OK%==0 if %FRONTEND_OK%==0 (
 goto :eof
 
 REM ============================================
+REM Start System in Persistent Mode
+REM ============================================
+:persist
+echo ==========================================
+echo Starting System in Persistent Mode
+echo ==========================================
+echo.
+echo This will keep servers running even after you disconnect.
+echo Servers will restart automatically if they crash.
+echo.
+
+REM Create logs directory
+if not exist "logs" mkdir logs
+
+REM Create persistent backend wrapper
+echo @echo off > _backend_persist.bat
+echo :loop >> _backend_persist.bat
+echo cd /d "%~dp0" >> _backend_persist.bat
+echo echo [Backend] Starting at %%date%% %%time%% ^>^> logs\backend.log >> _backend_persist.bat
+echo "%BACKEND_BINARY%" ^>^> logs\backend.log 2^>^&1 >> _backend_persist.bat
+echo echo [Backend] Crashed at %%date%% %%time%%, restarting in 5 seconds... ^>^> logs\backend.log >> _backend_persist.bat
+echo timeout /t 5 /nobreak ^>nul >> _backend_persist.bat
+echo goto loop >> _backend_persist.bat
+
+REM Create persistent frontend wrapper
+echo @echo off > _frontend_persist.bat
+echo :loop >> _frontend_persist.bat
+echo cd /d "%~dp0" >> _frontend_persist.bat
+echo echo [Frontend] Starting at %%date%% %%time%% ^>^> logs\frontend.log >> _frontend_persist.bat
+where python3 >nul 2>&1
+if %errorlevel%==0 (
+    echo python3 -m http.server %FRONTEND_PORT% --bind 0.0.0.0 --directory frontend ^>^> logs\frontend.log 2^>^&1 >> _frontend_persist.bat
+) else (
+    echo python -m http.server %FRONTEND_PORT% --bind 0.0.0.0 --directory frontend ^>^> logs\frontend.log 2^>^&1 >> _frontend_persist.bat
+)
+echo echo [Frontend] Crashed at %%date%% %%time%%, restarting in 5 seconds... ^>^> logs\frontend.log >> _frontend_persist.bat
+echo timeout /t 5 /nobreak ^>nul >> _frontend_persist.bat
+echo goto loop >> _frontend_persist.bat
+
+REM Check if already running
+call :is_port_used %BACKEND_PORT%
+if %errorlevel%==0 (
+    echo [92mBackend already running on port %BACKEND_PORT%[0m
+) else (
+    echo Starting persistent backend...
+    start "TRA Backend" /MIN cmd /c _backend_persist.bat
+    timeout /t 2 /nobreak >nul
+    call :is_port_used %BACKEND_PORT%
+    if %errorlevel%==0 (
+        echo [92mSUCCESS: Backend started[0m
+    ) else (
+        echo [91mERROR: Backend failed to start. Check logs\backend.log[0m
+    )
+)
+
+call :is_port_used %FRONTEND_PORT%
+if %errorlevel%==0 (
+    echo [92mFrontend already running on port %FRONTEND_PORT%[0m
+) else (
+    echo Starting persistent frontend...
+    start "TRA Frontend" /MIN cmd /c _frontend_persist.bat
+    timeout /t 2 /nobreak >nul
+    call :is_port_used %FRONTEND_PORT%
+    if %errorlevel%==0 (
+        echo [92mSUCCESS: Frontend started[0m
+    ) else (
+        echo [91mERROR: Frontend failed to start. Check logs\frontend.log[0m
+    )
+)
+
+echo.
+echo ==========================================
+echo [92mSystem Running in Persistent Mode![0m
+echo ==========================================
+echo.
+echo The servers will keep running even after you disconnect.
+echo.
+echo Access at:
+echo   [92mhttp://localhost:%FRONTEND_PORT%[0m
+echo   [92mhttp://10.11.2.164:%FRONTEND_PORT%[0m
+echo.
+echo Backend API:
+echo   http://localhost:%BACKEND_PORT%
+echo   http://10.11.2.164:%BACKEND_PORT%
+echo.
+echo Logs are being written to:
+echo   logs\backend.log
+echo   logs\frontend.log
+echo.
+echo To check status: run.bat status
+echo To stop servers: run.bat stop
+echo.
+echo You can now safely disconnect from the server.
+echo.
+goto :eof
+
+REM ============================================
 REM Stop Servers
 REM ============================================
 :stop
@@ -225,6 +323,19 @@ if defined PID (
     echo [92mSUCCESS: Frontend stopped[0m
 ) else (
     echo [93mINFO: Frontend not running[0m
+)
+
+REM Stop persistent wrapper processes (if running)
+tasklist /FI "WINDOWTITLE eq TRA Backend" 2>nul | find "cmd.exe" >nul
+if %errorlevel%==0 (
+    taskkill /F /FI "WINDOWTITLE eq TRA Backend" >nul 2>&1
+    echo [92mSUCCESS: Backend wrapper stopped[0m
+)
+
+tasklist /FI "WINDOWTITLE eq TRA Frontend" 2>nul | find "cmd.exe" >nul
+if %errorlevel%==0 (
+    taskkill /F /FI "WINDOWTITLE eq TRA Frontend" >nul 2>&1
+    echo [92mSUCCESS: Frontend wrapper stopped[0m
 )
 
 echo.
@@ -310,7 +421,8 @@ echo Usage: run.bat [command]
 echo.
 echo Commands:
 echo   setup      Download dependencies and compile
-echo   start      Start both servers and open browser
+echo   start      Start both servers and open browser (session-dependent)
+echo   persist    Start servers in persistent mode (survives disconnects)
 echo   stop       Stop all servers
 echo   restart    Restart all servers
 echo   status     Check if servers are running
@@ -319,9 +431,12 @@ echo   help       Show this help message
 echo.
 echo Examples:
 echo   run.bat setup      # First time setup
-echo   run.bat start      # Start using the system
+echo   run.bat persist    # Start in persistent mode (RECOMMENDED for servers)
+echo   run.bat start      # Start for local testing
 echo   run.bat status     # Check what's running
 echo   run.bat stop       # Stop everything
+echo.
+echo For remote/company servers, use 'persist' to keep running after disconnect.
 echo.
 goto :eof
 
