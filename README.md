@@ -19,7 +19,6 @@ This application allows you to create 3D thermal radiation models, calculate rad
 - **Emitters**: Surfaces that emit thermal radiation (have temperature)
 - **Receivers**: Surfaces that measure incoming radiation
 - **Inert**: Non-participating surfaces (block radiation but don't emit/receive)
-- **Planes**: Flat rectangular surfaces that can be positioned and rotated in 3D space
 
 ---
 
