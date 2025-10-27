@@ -164,6 +164,7 @@ The interface consists of:
 - Resize plane
 - Drag colored squares to scale on specific axes
 - Or drag center to scale uniformly
+- On top view, double click the edge to enable dragging the plane to stretch
 
 **Rotate** (`R` key)
 - Rotate plane around axes
