@@ -472,6 +472,43 @@
             background: #007e7a;
         }
 
+        /* Distance display */
+        #distanceRow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 25px;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
+        #distanceRow span {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+            padding: 6px 12px;
+            background: #00a19b;
+            height: 32px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        #distanceInput {
+            padding: 6px 8px;
+            font-size: 18px;
+            font-family: 'Poppins', sans-serif;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            width: 80px;
+            background-color: white;
+            text-align: center;
+        }
+
         /* Scene Manager Styles */
         #sceneNameInput {
             font-family: 'Poppins', sans-serif;
@@ -1070,6 +1107,10 @@
         <div class="section-content collapsed">
         <button id="detail">Show detail</button>
         <button id="calculate">Calculate</button>
+        <div id="distanceRow">
+            <span>Distance</span>
+            <input type="text" id="distanceInput" readonly value="-" />
+        </div>
         </div>
 
         <!-- Scene Manager section -->
@@ -1150,7 +1191,7 @@
         // Configuration
         const CONFIG = {
             // Backend API URL - Company network deployment
-            BACKEND_URL: 'http://192.168.0.218:8080', // Company network static IP
+            BACKEND_URL: 'http://10.14.1.165:8080', // Company network static IP
             
             // API endpoints
             CALCULATE_ENDPOINT: '/calculate',
@@ -1813,14 +1854,14 @@
                 return;
             }
             
-            const line = plane.mesh.userData.topViewLine;
-            
-            // Get the plane's current world position
-            const worldPosition = new THREE.Vector3();
-            plane.mesh.getWorldPosition(worldPosition);
-            
+                const line = plane.mesh.userData.topViewLine;
+                
+                // Get the plane's current world position
+                const worldPosition = new THREE.Vector3();
+                plane.mesh.getWorldPosition(worldPosition);
+                
             // Update the line's position to match plane's world position
-            line.position.copy(worldPosition);
+                line.position.copy(worldPosition);
             
             // Update the line geometry to match current plane rotation
             const lineLength = plane.width;
@@ -1849,41 +1890,41 @@
             
             // Update the line geometry with new points
             line.geometry.setFromPoints(points);
-            
-            // Update spheres position if they exist
-            if (plane.mesh.userData.topViewSpheres) {
-                const spheres = plane.mesh.userData.topViewSpheres;
                 
-                // Get the actual edge vertices of the plane
-                const { edge1, edge2 } = getPlaneEdgeVertices(plane);
-                
-                // Update sphere positions to match actual plane edges
+                // Update spheres position if they exist
+                if (plane.mesh.userData.topViewSpheres) {
+                    const spheres = plane.mesh.userData.topViewSpheres;
+                    
+                    // Get the actual edge vertices of the plane
+                    const { edge1, edge2 } = getPlaneEdgeVertices(plane);
+                    
+                    // Update sphere positions to match actual plane edges
                 if (spheres[0] && spheres[1]) {
                     spheres[0].position.set(edge1.x, 0, edge1.z);
                     spheres[1].position.set(edge2.x, 0, edge2.z);
                 }
-            }
-            
+                }
+                
             // Check if dimensions changed significantly - if so, recreate for clean geometry
-            const currentWidth = plane.width;
-            const currentAngle = plane.angle;
-            const currentIncline = plane.incline;
-            
+                const currentWidth = plane.width;
+                const currentAngle = plane.angle;
+                const currentIncline = plane.incline;
+                
             // Only recreate if width changed significantly (rotation/position updates are handled above)
             if (line.userData.lastWidth && Math.abs(line.userData.lastWidth - currentWidth) > 0.01) {
                 // Width changed, recreate everything for clean geometry
-                scene.remove(line);
-                if (plane.mesh.userData.topViewSpheres) {
-                    plane.mesh.userData.topViewSpheres.forEach(sphere => {
-                        scene.remove(sphere);
-                    });
-                }
-                createTopViewLine(plane);
-                
-                // Ensure newly created spheres are selectable
-                if (plane.mesh.userData.topViewSpheres) {
+                    scene.remove(line);
+                    if (plane.mesh.userData.topViewSpheres) {
+                        plane.mesh.userData.topViewSpheres.forEach(sphere => {
+                            scene.remove(sphere);
+                        });
+                    }
+                    createTopViewLine(plane);
+                    
+                    // Ensure newly created spheres are selectable
+                    if (plane.mesh.userData.topViewSpheres) {
                     plane.mesh.userData.topViewSpheres.forEach((sphere, index) => {
-                        sphere.userData.isSelectable = true;
+                            sphere.userData.isSelectable = true;
                         sphere.userData.parentPlane = plane;
                         sphere.userData.sphereIndex = index;
                     });
@@ -2527,7 +2568,7 @@
             
             // Only capture state if not skipped (e.g., during continuous plane creation)
             if (!skipStateCapture) {
-                captureState("Plane created");
+            captureState("Plane created");
             }
             return planeData;
 
@@ -3012,24 +3053,24 @@
             // PRIORITY 1: Check for spheres FIRST across ALL intersects (ignore distance order)
             // This ensures spheres are selected even when overlapping with lines
             if (activeCamera === cameras.top) {
-                for (let i = 0; i < intersects.length; i++) {
-                    const object = intersects[i].object;
-                    
+            for (let i = 0; i < intersects.length; i++) {
+                const object = intersects[i].object;
+
                     // Check if this is a selectable sphere
                     if (object.userData && object.userData.isSelectable && object.userData.parentPlane && 
                         object.geometry && object.geometry.type === 'SphereGeometry') {
-                        const sphere = object;
+                    const sphere = object;
                         const currentTime = Date.now();
                         
                         // Check if this is a double-click on the same sphere
                         if (lastClickedSphere === sphere && (currentTime - lastSphereClickTime) < SPHERE_DOUBLE_CLICK_DELAY) {
                             // Double-click detected!
-                            selectSphere(sphere);
+                    selectSphere(sphere);
                             
                             // Reset double-click tracking
                             lastClickedSphere = null;
                             lastSphereClickTime = 0;
-                            return; // Exit early to prevent other click handlers
+                    return; // Exit early to prevent other click handlers
                         } else {
                             // First click - store for double-click detection
                             lastClickedSphere = sphere;
@@ -3279,6 +3320,9 @@
                 transformControlss.showY = true;
                 transformControlss.showZ = true;
             }
+
+            // Always keep distance display up to date
+            updateDistanceDisplay();
         }
         function createOrUpdateGroup() {
             // If no group exists, create one
@@ -3450,6 +3494,9 @@
                 if (selectedPlanes.length > 0) {
                     updateGUI(selectedPlanes[selectedPlanes.length - 1]);
                 }
+
+                // Always keep distance display up to date
+                updateDistanceDisplay();
             });
         }
 
@@ -3991,7 +4038,7 @@
                 const mouse = new THREE.Vector2();
                 mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
                 mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-                
+
                 const raycaster = new THREE.Raycaster();
                 raycaster.setFromCamera(mouse, activeCamera);
                 const intersects = raycaster.intersectObjects([selectedSphere]);
@@ -5631,7 +5678,273 @@
         
         document.getElementById("detail").addEventListener("click", showContourToSelectedPlane);
 
+        // ==================== DISTANCE CALCULATION ====================
+        // Function to get all vertices of a plane mesh in world space
+        function getPlaneVertices(plane) {
+            const vertices = [];
+            
+            // Get the 4 corners of the plane in local space
+            const halfWidth = plane.width / 2;
+            const halfHeight = plane.height / 2;
+            
+            const localCorners = [
+                new THREE.Vector3(-halfWidth, -halfHeight, 0),
+                new THREE.Vector3(halfWidth, -halfHeight, 0),
+                new THREE.Vector3(halfWidth, halfHeight, 0),
+                new THREE.Vector3(-halfWidth, halfHeight, 0)
+            ];
+            
+            // Transform to world space
+            const worldPosition = new THREE.Vector3();
+            const worldQuaternion = new THREE.Quaternion();
+            plane.mesh.getWorldPosition(worldPosition);
+            plane.mesh.getWorldQuaternion(worldQuaternion);
+            
+            localCorners.forEach(corner => {
+                const worldCorner = corner.clone();
+                worldCorner.applyQuaternion(worldQuaternion);
+                worldCorner.add(worldPosition);
+                vertices.push(worldCorner);
+            });
+            
+            return vertices;
+        }
+        
+        // Function to get plane geometry (center, normal, and bounds) in world space
+        function getPlaneGeometry(plane) {
+            const center = new THREE.Vector3();
+            plane.mesh.getWorldPosition(center);
+            
+            const normal = new THREE.Vector3(0, 0, 1);
+            normal.applyQuaternion(plane.mesh.quaternion);
+            normal.normalize();
+            
+            const vertices = getPlaneVertices(plane);
+            
+            return {
+                center: center,
+                normal: normal,
+                vertices: vertices
+            };
+        }
+        
+        // Function to calculate shortest distance from a point to a finite plane surface
+        function pointToFinitePlaneDistance(point, planeGeo) {
+            // Calculate signed distance from point to infinite plane
+            const toPoint = new THREE.Vector3().subVectors(point, planeGeo.center);
+            const signedDistance = toPoint.dot(planeGeo.normal);
+            
+            // Project point onto the infinite plane
+            const projectedPoint = new THREE.Vector3().copy(point);
+            projectedPoint.sub(planeGeo.normal.clone().multiplyScalar(signedDistance));
+            
+            // Check if projected point is within the plane's polygon bounds
+            // Use point-in-polygon test on the plane surface
+            const vertices = planeGeo.vertices;
+            const isInside = isPointInPolygon(projectedPoint, vertices, planeGeo.normal);
+            
+            if (isInside) {
+                // Point projects onto the plane surface, return perpendicular distance
+                return Math.abs(signedDistance);
+            } else {
+                // Point projects outside plane bounds, find distance to nearest edge/corner
+                let minDist = Infinity;
+                
+                // Check distance to all edges
+                for (let i = 0; i < vertices.length; i++) {
+                    const v1 = vertices[i];
+                    const v2 = vertices[(i + 1) % vertices.length];
+                    const edgeDist = pointToLineSegmentDistance(point, v1, v2);
+                    if (edgeDist < minDist) {
+                        minDist = edgeDist;
+                    }
+                }
+                
+                return minDist;
+            }
+        }
+        
+        // Helper function to check if a point is inside a polygon (on the plane surface)
+        function isPointInPolygon(point, vertices, normal) {
+            // Project vertices and point onto a 2D plane perpendicular to normal
+            // Find two axes perpendicular to normal
+            const up = new THREE.Vector3(0, 1, 0);
+            let u = new THREE.Vector3();
+            if (Math.abs(normal.dot(up)) > 0.9) {
+                u = new THREE.Vector3(1, 0, 0);
+            } else {
+                u.crossVectors(up, normal).normalize();
+            }
+            const v = new THREE.Vector3();
+            v.crossVectors(normal, u).normalize();
+            
+            // Project all points to 2D
+            const projected2D = vertices.map(vertex => {
+                const rel = new THREE.Vector3().subVectors(vertex, vertices[0]);
+                return {
+                    x: rel.dot(u),
+                    y: rel.dot(v)
+                };
+            });
+            
+            const pointRel = new THREE.Vector3().subVectors(point, vertices[0]);
+            const point2D = {
+                x: pointRel.dot(u),
+                y: pointRel.dot(v)
+            };
+            
+            // Ray casting algorithm for point-in-polygon
+            let inside = false;
+            for (let i = 0, j = projected2D.length - 1; i < projected2D.length; j = i++) {
+                const xi = projected2D[i].x, yi = projected2D[i].y;
+                const xj = projected2D[j].x, yj = projected2D[j].y;
+                
+                const intersect = ((yi > point2D.y) !== (yj > point2D.y)) &&
+                    (point2D.x < (xj - xi) * (point2D.y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+            
+            return inside;
+        }
+        
+        // Helper function to calculate distance from point to line segment
+        function pointToLineSegmentDistance(point, lineStart, lineEnd) {
+            const line = new THREE.Vector3().subVectors(lineEnd, lineStart);
+            const lineLength = line.length();
+            
+            if (lineLength < 1e-10) {
+                return point.distanceTo(lineStart);
+            }
+            
+            const toPoint = new THREE.Vector3().subVectors(point, lineStart);
+            const lineNormalized = line.clone().normalize();
+            const t = Math.max(0, Math.min(lineLength, toPoint.dot(lineNormalized)));
+            
+            const closestPoint = new THREE.Vector3().copy(lineStart).add(lineNormalized.multiplyScalar(t));
+            return point.distanceTo(closestPoint);
+        }
+        
+        // Function to calculate shortest distance between two plane meshes
+        // This calculates relative distance considering actual geometry
+        function calculateShortestDistance(plane1, plane2) {
+            // Get plane geometries in world space
+            const geo1 = getPlaneGeometry(plane1);
+            const geo2 = getPlaneGeometry(plane2);
+            
+            let minDistance = Infinity;
+            
+            // Check all vertices of plane1 against plane2's surface
+            geo1.vertices.forEach(vertex => {
+                const dist = pointToFinitePlaneDistance(vertex, geo2);
+                if (dist < minDistance) {
+                    minDistance = dist;
+                }
+            });
+            
+            // Check all vertices of plane2 against plane1's surface
+            geo2.vertices.forEach(vertex => {
+                const dist = pointToFinitePlaneDistance(vertex, geo1);
+                if (dist < minDistance) {
+                    minDistance = dist;
+                }
+            });
+            
+            // Also check edge-to-edge distances for parallel or nearly parallel planes
+            const vertices1 = geo1.vertices;
+            const vertices2 = geo2.vertices;
+            
+            // Check all edge combinations
+            for (let i = 0; i < vertices1.length; i++) {
+                const v1 = vertices1[i];
+                const v1Next = vertices1[(i + 1) % vertices1.length];
+                
+                for (let j = 0; j < vertices2.length; j++) {
+                    const v2 = vertices2[j];
+                    const v2Next = vertices2[(j + 1) % vertices2.length];
+                    
+                    // Calculate shortest distance between two line segments
+                    const edgeDist = lineSegmentToLineSegmentDistance(v1, v1Next, v2, v2Next);
+                    if (edgeDist < minDistance) {
+                        minDistance = edgeDist;
+                    }
+                }
+            }
+            
+            return minDistance;
+        }
+        
+        // Helper function to calculate shortest distance between two line segments
+        function lineSegmentToLineSegmentDistance(p1, p2, p3, p4) {
+            const d1 = p2.clone().sub(p1);
+            const d2 = p4.clone().sub(p3);
+            const r = p1.clone().sub(p3);
+            
+            const a = d1.dot(d1);
+            const e = d2.dot(d2);
+            const f = d2.dot(r);
+            
+            let s = 0;
+            let t = 0;
+            
+            if (a < 1e-10 && e < 1e-10) {
+                // Both segments are points
+                return p1.distanceTo(p3);
+            }
+            
+            if (a < 1e-10) {
+                // First segment is a point
+                s = 0;
+                t = Math.max(0, Math.min(1, f / e));
+            } else {
+                const c = d1.dot(r);
+                if (e < 1e-10) {
+                    // Second segment is a point
+                    t = 0;
+                    s = Math.max(0, Math.min(1, -c / a));
+                } else {
+                    // Both segments are lines
+                    const b = d1.dot(d2);
+                    const denom = a * e - b * b;
+                    
+                    if (denom !== 0) {
+                        s = Math.max(0, Math.min(1, (b * f - c * e) / denom));
+                    } else {
+                        s = 0;
+                    }
+                    
+                    t = (b * s + f) / e;
+                    if (t < 0) {
+                        t = 0;
+                        s = Math.max(0, Math.min(1, -c / a));
+                    } else if (t > 1) {
+                        t = 1;
+                        s = Math.max(0, Math.min(1, (b - c) / a));
+                    }
+                }
+            }
+            
+            const c1 = p1.clone().add(d1.clone().multiplyScalar(s));
+            const c2 = p3.clone().add(d2.clone().multiplyScalar(t));
+            
+            return c1.distanceTo(c2);
+        }
+        
+        // Function to update distance display
+        function updateDistanceDisplay() {
+            const distanceInput = document.getElementById('distanceInput');
+            if (!distanceInput) return;
+            
+            if (selectedPlanes.length === 2) {
+                const distance = calculateShortestDistance(selectedPlanes[0], selectedPlanes[1]);
+                distanceInput.value = distance.toFixed(1);
+            } else {
+                distanceInput.value = '-';
+            }
+        }
 
+        // Initialize distance display
+        updateDistanceDisplay();
+        // ==================== END DISTANCE CALCULATION ====================
 
         // Updated captureState function to handle all plane properties and new functionality
         function captureState(description = "User action") {
