@@ -1051,7 +1051,7 @@
                 <button id="resetPlane" class="plane-btn">Reset</button>
                 <button id="standPlane" class="plane-btn">Stand</button>
             </div>
-            <button id="addPlaneMode" class="plane-btn" style="margin: 5px 25px;">Add Walls</button>
+            <button id="addPlaneMode" class="plane-btn" style="margin: 5px 25px; width: 180px" >Add Walls</button>
         </div>
 
         <!-- Transform Controls section -->
@@ -1087,7 +1087,7 @@
         </div>
 
         <!-- Precision section -->
-        <div class="section-header collapsed" onclick="toggleSection(this)">Resolution</div>
+        <div class="section-header collapsed" onclick="toggleSection(this)">Precision</div>
         <div class="section-content collapsed">
             <select id="gridSizeInput" style="margin-left: 25px; margin-top: 5px; margin-bottom: 5px;">
                 <option value="2" selected>Low</option>
@@ -1316,6 +1316,12 @@
             if (historyIndex > 0) {
                 historyIndex--;
                 restoreState(historyIndex);
+                
+                // If in plane mode, also remove the last point so the next click
+                // creates a plane from the correct starting point
+                if (planeMode && planePoints.length > 1) {
+                    planePoints.pop();
+                }
             }
         }
 
@@ -1610,6 +1616,11 @@
             activeCamera = camera;
             controls.object = camera;
             transformControlss.camera = camera;
+
+            // Exit plane mode if switching away from top view while in plane mode
+            if (camera !== cameras.top && planeMode) {
+                exitPlaneMode();
+            }
 
             if (camera === cameras.top) {
                 camera.position.set(0, 10, 0);
@@ -4024,6 +4035,9 @@
             
             // Note: createPlane() already adds the plane to the planes array, so no need to push again
             
+            // Capture state after each plane is created for undo support
+            captureState("Wall created");
+            
             // Create top view line since we're in top view
             createTopViewLine(continuousPlane);
             
@@ -4042,10 +4056,7 @@
         
         // Function to exit plane creation mode
         function exitPlaneMode() {
-            // Capture state once for all planes created in this session
-            if (planePoints.length > 0) {
-                captureState("Walls created");
-            }
+            // State is now captured after each plane creation, no need for batch capture
             
             // Disable plane mode
             planeMode = false;
@@ -6203,6 +6214,14 @@
                 if (plane.mesh.userData.topViewLine) {
                     scene.remove(plane.mesh.userData.topViewLine);
                     plane.mesh.userData.topViewLine = null;
+                }
+                
+                // Remove top view spheres if they exist
+                if (plane.mesh.userData.topViewSpheres) {
+                    plane.mesh.userData.topViewSpheres.forEach(sphere => {
+                        scene.remove(sphere);
+                    });
+                    plane.mesh.userData.topViewSpheres = null;
                 }
                 
                 if (scene.children.includes(plane.mesh)) {
