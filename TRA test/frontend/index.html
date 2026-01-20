@@ -910,28 +910,38 @@
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
-        #toggleGrid {
+        .grid-buttons-container {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Poppins', sans-serif;
-            font: 700;
-            font-size: x-large;
-            padding: 8px 16px;
-            background: #00a19b;
-            width: 200px;
-            height: 50px;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            gap: 5px;
             margin-left: 25px;
             margin-top: 5px;
             margin-bottom: 5px;
         }
 
-        #toggleGrid:hover {
+        #toggleGrid, #gridSnapBtn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 8px 10px;
+            background: #00a19b;
+            width: 97px;
+            height: 45px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #toggleGrid:hover, #gridSnapBtn:hover {
             background: #007e7a;
+        }
+
+        #gridSnapBtn.active {
+            background: #006662;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         #addPlaneMode {
@@ -1063,7 +1073,10 @@
             <button id="side">Side</button>
         </div>
         <button id="perspective">Perspective</button>
-            <button id="toggleGrid">Hide Grid</button>
+            <div class="grid-buttons-container">
+                <button id="toggleGrid">Hide Grid</button>
+                <button id="gridSnapBtn">Grid Snap</button>
+            </div>
         </div>
 
         <!-- Scaling section -->
@@ -1393,6 +1406,28 @@
             
         }
 
+        // Grid snap button functionality
+        document.getElementById('gridSnapBtn').addEventListener('click', toggleGridSnap);
+
+        function toggleGridSnap() {
+            // Toggle all grid snap settings
+            gridSnapConfig.translation.enabled = !gridSnapConfig.translation.enabled;
+            gridSnapConfig.rotation.enabled = !gridSnapConfig.rotation.enabled;
+            gridSnapConfig.scale.enabled = !gridSnapConfig.scale.enabled;
+            
+            // Update button state
+            updateGridSnapButtonState();
+        }
+
+        function updateGridSnapButtonState() {
+            const gridSnapBtn = document.getElementById('gridSnapBtn');
+            if (gridSnapConfig.translation.enabled) {
+                gridSnapBtn.classList.add('active');
+            } else {
+                gridSnapBtn.classList.remove('active');
+            }
+        }
+
         // At the top with your other variables
         let selectedPlanes = []; // Array to store multiple selected planes
         let isShiftPressed = false; // Track shift key state
@@ -1474,6 +1509,9 @@
                 minScale: 0.1
             }
         };
+
+        // Initialize grid snap button state (grid snap is enabled by default)
+        updateGridSnapButtonState();
 
         // Grid snapping utility functions
         function snapToGrid(value, gridSize) {
@@ -2291,10 +2329,7 @@
             // Disable orbit controls during sphere dragging
             controls.enabled = false;
             
-            // Disable snap-to-grid during sphere dragging
-            if (typeof snapToGrid !== 'undefined') {
-                snapToGrid = false;
-            }
+            // Note: Sphere dragging doesn't use transform controls, so no need to disable grid snap
         }
 
         function updateSphereDrag(mousePosition) {
@@ -2387,10 +2422,7 @@
                 // Don't re-enable orbit controls immediately - wait for next click
                 orbitControlsDisabled = true;
                 
-                // Re-enable snap-to-grid after sphere dragging
-                if (typeof snapToGrid !== 'undefined') {
-                    snapToGrid = true;
-                }
+                // Note: Sphere dragging doesn't use transform controls, grid snap remains functional
             }
         }
 
@@ -2512,6 +2544,29 @@
                     visualizeNormal(planeData);
                 }
             });
+        }
+
+        // Function to change temperature (Heat Flux) for all selected emitter planes
+        function changeMultiplePlanesTemperature(newTemperature) {
+            if (selectedPlanes.length < 2) return;
+            
+            captureState("Change multiple planes temperature");
+            
+            // Count how many emitters were updated
+            let emitterCount = 0;
+            
+            selectedPlanes.forEach(planeData => {
+                // Only update temperature for emitter planes
+                if (planeData.type === 'Emitter') {
+                    planeData.temperature = newTemperature;
+                    emitterCount++;
+                }
+            });
+            
+            // Log if no emitters were found
+            if (emitterCount === 0) {
+                console.warn('No emitter planes in selection to update temperature');
+            }
         }
 
         // Function to create a new plane
@@ -2704,9 +2759,10 @@
 
             captureState("Before delete");
 
-            // Filter out planes that no longer exist in the scene
+            // Filter out planes that no longer exist (check planes array and mesh validity)
+            // Note: Don't check scene.children because multi-selected planes are in selectedPlaneGroup, not scene
             const validSelectedPlanes = selectedPlanes.filter(planeData => {
-                return planes.includes(planeData) && scene.children.includes(planeData.mesh);
+                return planes.includes(planeData) && planeData.mesh && planeData.mesh.parent;
             });
 
             if (validSelectedPlanes.length === 0) {
@@ -2723,13 +2779,23 @@
                     transformControlss.detach();
                 }
 
-                // Remove the actual plane mesh from scene
-                scene.remove(planeData.mesh);
+                // Remove the plane mesh from its parent (could be scene or selectedPlaneGroup)
+                if (planeData.mesh.parent) {
+                    planeData.mesh.parent.remove(planeData.mesh);
+                }
 
                 // Remove top view line if it exists
                 if (planeData.mesh.userData.topViewLine) {
                     scene.remove(planeData.mesh.userData.topViewLine);
                     planeData.mesh.userData.topViewLine = null;
+                }
+
+                // Remove top view spheres if they exist
+                if (planeData.mesh.userData.topViewSpheres) {
+                    planeData.mesh.userData.topViewSpheres.forEach(sphere => {
+                        scene.remove(sphere);
+                    });
+                    planeData.mesh.userData.topViewSpheres = null;
                 }
 
                 const index = planes.indexOf(planeData);
@@ -2779,6 +2845,13 @@
                 const multiTypeController = gui.add({ type: 'Receiver' }, 'type', ['Receiver', 'Emitter', 'Inert']).name('Type (All)');
                 multiTypeController.onChange(function (newType) {
                     changeMultiplePlanesType(newType);
+                });
+                
+                // Multi-select temperature control (only affects Emitter planes)
+                const emitterCount = selectedPlanes.filter(p => p.type === 'Emitter').length;
+                const multiTempController = gui.add({ temperature: 0 }, 'temperature').name(`Heat Flux `);
+                multiTempController.onChange(function (newTemp) {
+                    changeMultiplePlanesTemperature(newTemp);
                 });
                 
                 // Show info about selected planes
@@ -3720,6 +3793,7 @@
                     gridSnapConfig.translation.enabled = !gridSnapConfig.translation.enabled;
                     gridSnapConfig.rotation.enabled = !gridSnapConfig.rotation.enabled;
                     gridSnapConfig.scale.enabled = !gridSnapConfig.scale.enabled;
+                    updateGridSnapButtonState();
                     break;
                 case 't': // Top view
                     setView(cameras.top);
