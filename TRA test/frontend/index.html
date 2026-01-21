@@ -300,10 +300,28 @@
             border: 1px solid #ccc;
             border-radius: 8px;
             outline: none;
-            width: 65px;
+            width: 35px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
             margin: 5px 5px;
+        }
+
+        #autoColorScaleBtn {
+            padding: 6px 12px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            background: #00a19b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-right: 8px;
+            transition: background 0.2s;
+        }
+
+        #autoColorScaleBtn:hover {
+            background: #007e7a;
         }
         
         .color-scale-container {
@@ -1120,6 +1138,7 @@
         <div class="section-header collapsed" onclick="toggleSection(this)">Color Scale</div>
         <div class="section-content collapsed">
         <div class="color-scale-container">
+            <button id="autoColorScaleBtn">Auto</button>
             <input type="number" id="colorScaleMin" placeholder="Min" step="0.1" value="0">
             <span style="color: white; font-family: 'Poppins', sans-serif;">to</span>
             <input type="number" id="colorScaleMax" placeholder="Max" step="0.1" value="20">
@@ -5319,6 +5338,49 @@
         
         if (colorScaleMaxEl) {
             colorScaleMaxEl.addEventListener('change', updateColorScale);
+        }
+
+        // Auto color scale button handler
+        const autoColorScaleBtn = document.getElementById('autoColorScaleBtn');
+        if (autoColorScaleBtn) {
+            autoColorScaleBtn.addEventListener('click', function() {
+                // Check if a plane is selected
+                if (selectedPlanes.length === 0) {
+                    alert('Please select a receiver plane first.');
+                    return;
+                }
+                
+                const selectedPlane = selectedPlanes[0];
+                
+                // Check if it's a receiver plane
+                if (selectedPlane.type !== "Receiver") {
+                    alert('Please select a receiver plane. Only receiver planes have contour data.');
+                    return;
+                }
+                
+                // Check if the receiver has contour data
+                if (!selectedPlane.contourData || !selectedPlane.contourData.values) {
+                    alert(`No contour data available for "${selectedPlane.name}". Please run Calculate first.`);
+                    return;
+                }
+                
+                // Get min and max from contour data
+                const dataMin = Math.min(...selectedPlane.contourData.values);
+                const dataMax = Math.max(...selectedPlane.contourData.values);
+                
+                // Round down for min, round up for max
+                const roundedMin = Math.floor(dataMin);
+                const roundedMax = Math.ceil(dataMax);
+                
+                // Update the input fields
+                document.getElementById('colorScaleMin').value = roundedMin;
+                document.getElementById('colorScaleMax').value = roundedMax;
+                
+                // Trigger the color scale update
+                updateColorScale();
+                
+                console.log(`Auto color scale set: ${roundedMin} to ${roundedMax} (from data range ${dataMin.toFixed(2)} to ${dataMax.toFixed(2)})`);
+            });
         }
 
         // Add this function to handle the contour generation
