@@ -3805,6 +3805,7 @@
                     const newPlane = createPlane();
                     updateGUI(newPlane);
                     selectedPlane = newPlane;
+                    selectedPlanes = [newPlane]; // Update selectedPlanes array
                     transformControlss.attach(newPlane.mesh);
                     
                     // If in top view, create the top view line immediately
@@ -3893,6 +3894,7 @@
             const newPlane = createPlane();
             updateGUI(newPlane);
             selectedPlane = newPlane;
+            selectedPlanes = [newPlane]; // Update selectedPlanes array
             transformControlss.attach(newPlane.mesh);
             
             // If in top view, create the top view line immediately
