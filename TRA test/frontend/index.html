@@ -1501,6 +1501,11 @@
         let planeClickHandler = null;
         let clickTimeout = null;
         
+        // Right-click panning variables for plane mode
+        let isPanningInPlaneMode = false;
+        let panStartPosition = { x: 0, y: 0 };
+        let cameraStartPosition = { x: 0, z: 0 };
+        
         // Add these near your other variables
         let selectedPlaneGroup = null; // Will store the temporary group
         let originalPositions = new Map(); // Stores original positions before grouping
@@ -4138,6 +4143,56 @@
         
         // Double-click to exit plane mode
         document.addEventListener('dblclick', handleDoubleClick);
+        
+        // Right-click panning for plane mode
+        renderer.domElement.addEventListener('mousedown', (event) => {
+            // Only enable right-click panning in plane mode and top view
+            if (planeMode && activeCamera === cameras.top && event.button === 2) {
+                event.preventDefault();
+                isPanningInPlaneMode = true;
+                panStartPosition = { x: event.clientX, y: event.clientY };
+                cameraStartPosition = { 
+                    x: cameras.top.position.x, 
+                    z: cameras.top.position.z 
+                };
+                renderer.domElement.style.cursor = 'grabbing';
+            }
+        });
+        
+        renderer.domElement.addEventListener('mousemove', (event) => {
+            if (isPanningInPlaneMode && planeMode) {
+                // Calculate how much the mouse has moved
+                const deltaX = event.clientX - panStartPosition.x;
+                const deltaY = event.clientY - panStartPosition.y;
+                
+                // Convert pixel movement to world units (adjust sensitivity based on zoom level)
+                const zoomLevel = cameras.top.zoom || 1;
+                const panSpeed = 0.01 / zoomLevel;
+                
+                // Update camera position (in top view, X is horizontal, Z is vertical on screen)
+                cameras.top.position.x = cameraStartPosition.x - deltaX * panSpeed;
+                cameras.top.position.z = cameraStartPosition.z - deltaY * panSpeed;
+                
+                // Update the controls target to move with camera (keeps view centered)
+                controls.target.x = cameras.top.position.x;
+                controls.target.z = cameras.top.position.z;
+                controls.update();
+            }
+        });
+        
+        renderer.domElement.addEventListener('mouseup', (event) => {
+            if (event.button === 2 && isPanningInPlaneMode) {
+                isPanningInPlaneMode = false;
+                renderer.domElement.style.cursor = 'default';
+            }
+        });
+        
+        // Prevent context menu on right-click during plane mode
+        renderer.domElement.addEventListener('contextmenu', (event) => {
+            if (planeMode) {
+                event.preventDefault();
+            }
+        });
 
         // Mouse move handler for sphere dragging
         renderer.domElement.addEventListener('mousemove', (event) => {
