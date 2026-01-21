@@ -6,12 +6,6 @@
 
 ---
 
-## Abstract
-
-[Abstract placeholder - Brief summary of validation objectives, methods, and key findings]
-
----
-
 ## Table of Contents
 
 1. [Introduction](#introduction)
