@@ -23,7 +23,7 @@
    - [Extended Case: Parallel Planes](#extended-case-parallel-planes)
    - [Moderate Case: Perpendicular Planes](#moderate-case-perpendicular-planes)
    - [Complex Case: Multiple Planes](#complex-case-multiple-planes)
-4. [Software limitation](#software-limitation)
+4. [Software Limitation](#software-limitation)
 5. [Limitation](#limitation)
 6. [Conclusion](#conclusion)
 7. [Appendices](#appendices)
@@ -401,7 +401,7 @@ The half-width of the CI is 0.0188 $~\text{kW/m}^2$. which corresponds to 0.05% 
 
 As no closed-form analytical solution exists for this complex geometry, validation relies on assessing the physical reasonableness of the results. The computed radiation contour shows logically consistent features: peak flux occurs in direct line-of-sight to the primary emitter, a distinct reduction appears in areas occluded by the spandrel, and the secondary emitter contributes appropriately lower flux. No unphysical artefacts are observed. This spatial coherence supports the utility of the software for engineering analysis of similar complex scenarios.
 
-## Software limitation
+## Software Limitation
 
 ### Nature of the Discretization Error
 
